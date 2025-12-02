@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id          Int       @id @default(autoincrement())
+  name        String?
+  email       String    @unique
+  password    String
+  role        String    @default("user")
+  createdAt   DateTime  @default(now())
+  reviews     Review[]
+  appointments Appointment[]
+}
+
+model Service {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  price       Float
+  durationMin Int
+  createdAt   DateTime  @default(now())
+  appointments Appointment[]
+}
+
+model ExtraService {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  appointmentExtras AppointmentExtra[]
+}
+
+model Appointment {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  serviceId   Int
+  dateTime    DateTime
+  status      String    @default("pending")
+  notes       String?
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id])
+  service     Service   @relation(fields: [serviceId], references: [id])
+  extras      AppointmentExtra[]
+}
+
+model AppointmentExtra {
+  id              Int          @id @default(autoincrement())
+  appointmentId   Int
+  extraServiceId  Int
+
+  appointment     Appointment  @relation(fields: [appointmentId], references: [id])
+  extraService    ExtraService @relation(fields: [extraServiceId], references: [id])
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  rating      Int
+  comment     String
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+}
