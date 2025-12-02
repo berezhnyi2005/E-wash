@@ -4,6 +4,10 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import serviceRoutes from './routes/serviceRoutes.js'
 import extraServiceRoutes from './routes/extraServiceRoutes.js'
+import reviewRoutes from './routes/reviewRoutes.js'
+import userRoutes from './routes/userRoutes.js'
+import appointmentRoutes from './routes/appointmentRoutes.js'
+
 
 
 
@@ -25,6 +29,9 @@ app.use(cors())
 // ниже, после middleware
 app.use('/api/services', serviceRoutes)
 app.use('/api/extraServices', extraServiceRoutes)
+app.use('/api/reviews', reviewRoutes)
+app.use('/api/users', userRoutes)
+app.use('/api/appointments', appointmentRoutes)
 
 // === ROUTE TEST ===
 // Простейший маршрут, чтобы проверить, работает ли сервер
