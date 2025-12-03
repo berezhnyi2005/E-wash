@@ -4,3 +4,5 @@
     <p class="text-gray-500 mt-2">Если ты видишь этот текст под хэдером — всё ок</p>
   </div>
 </template>
+<script>
+</script>

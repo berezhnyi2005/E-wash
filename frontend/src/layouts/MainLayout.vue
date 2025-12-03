@@ -2,7 +2,7 @@
 <template>
   <div class="flex flex-col min-h-screen">
     <HeaderLayout />
-    <main class="flex-grow pt-20 bg-gray-50">
+    <main class="app-content">
       <RouterView />
     </main>
     <FooterLayout />
