@@ -1,11 +1,22 @@
 <template>
   <div class="modal-backdrop" @click.self="close">
     <div class="modal-panel">
-      <h2 class="modal-title">
-        {{ mode === 'edit' ? 'Upraviť službu' : 'Vytvoriť službu' }}
-      </h2>
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">
+            {{ isEditMode ? 'Upraviť službu' : 'Vytvoriť novú službu' }}
+          </h2>
+          <p class="modal-subtitle">
+            {{ isEditMode ? 'Upravte údaje existujúcej služby.' : 'Vyplňte údaje pre novú službu.' }}
+          </p>
+        </div>
 
-      <form @submit.prevent="handleSubmit" class="space-y-4">
+        <span class="modal-chip">
+          {{ isEditMode ? 'Edit' : 'Create' }}
+        </span>
+      </div>
+
+      <form @submit.prevent="handleSubmit" class="modal-form">
         <div class="form-field">
           <label class="form-field-label" for="service-title">
             Názov služby
@@ -28,6 +39,7 @@
             v-model="localForm.description"
             rows="3"
             class="form-field-textarea"
+            placeholder="Stručný popis toho, čo táto služba zahŕňa."
           ></textarea>
         </div>
 
@@ -66,7 +78,7 @@
         <div class="modal-actions">
           <button
             type="button"
-            class="btn btn-danger"
+            class="btn btn-ghost"
             @click="close"
           >
             Zrušiť
@@ -74,9 +86,9 @@
 
           <button
             type="submit"
-            class="btn btn-green"
+            class="btn btn-blue"
           >
-            {{ mode === 'edit' ? 'Uložiť zmeny' : 'Vytvoriť službu' }}
+            {{ isEditMode ? 'Uložiť zmeny' : 'Vytvoriť službu' }}
           </button>
         </div>
       </form>
@@ -117,20 +129,20 @@ const isEditMode = computed(() => props.mode === 'edit')
 watch(
   () => props.visible,
   (value) => {
-    if (value) {
-      if (props.service && isEditMode.value) {
-        localForm.id = props.service.id ?? null
-        localForm.title = props.service.title ?? ''
-        localForm.description = props.service.description ?? ''
-        localForm.price = props.service.price ?? 0
-        localForm.durationMin = props.service.durationMin ?? 30
-      } else {
-        localForm.id = null
-        localForm.title = ''
-        localForm.description = ''
-        localForm.price = 0
-        localForm.durationMin = 30
-      }
+    if (!value) return
+
+    if (props.service && props.service.id && isEditMode.value) {
+      localForm.id = props.service.id
+      localForm.title = props.service.title ?? ''
+      localForm.description = props.service.description ?? ''
+      localForm.price = props.service.price ?? 0
+      localForm.durationMin = props.service.durationMin ?? 30
+    } else {
+      localForm.id = null
+      localForm.title = ''
+      localForm.description = ''
+      localForm.price = 0
+      localForm.durationMin = 30
     }
   },
   { immediate: true }
@@ -142,9 +154,45 @@ const close = () => {
 
 const handleSubmit = () => {
   emit('save', {
-    ...localForm,
+    id: localForm.id,
+    title: localForm.title,
+    description: localForm.description,
+    price: localForm.price,
+    durationMin: localForm.durationMin,
     mode: isEditMode.value ? 'edit' : 'create'
   })
   emit('update:visible', false)
 }
 </script>
+
+<style scoped>
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.modal-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.modal-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: var(--grey-light);
+  color: var(--color-text-main);
+  white-space: nowrap;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+</style>

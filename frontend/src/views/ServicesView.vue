@@ -157,12 +157,43 @@ const requestDelete = async (id) => {
   }
 }
 
-const handleSaveService = async () => {
-  await fetchServices()
+// 🔥 ВАЖНО: реальная обработка создания / редактирования
+const handleSaveService = async (formData) => {
+  console.log('handleSaveService payload:', formData)
+
+  const { mode, id, ...payload } = formData
+
+  try {
+    let url = `${API_BASE}/api/services`
+    let method = 'POST'
+
+    // Редактирование существующей услуги
+    if (mode === 'edit' && id) {
+      url = `${API_BASE}/api/services/${id}`
+      method = 'PUT'
+    }
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      throw new Error('Nepodarilo sa uložiť službu.')
+    }
+    await fetchServices()
+  } catch (err) {
+    console.error('save error:', err)
+    alert(err.message || 'Chyba pri ukladaní služby.')
+  }
 }
 
 onMounted(fetchServices)
 </script>
+
 
 <style scoped>
 /* GRID LAYOUT: 1 → 2 → 3 v riadku */
@@ -183,10 +214,7 @@ onMounted(fetchServices)
     grid-template-columns: repeat(3, 1fr);
   }
 }
-
-/* ------------------------------------- */
 /* CARD */
-/* ------------------------------------- */
 .card-service {
   padding: 20px;
   border-radius: 12px;
