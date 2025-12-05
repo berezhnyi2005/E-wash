@@ -1,7 +1,19 @@
 import prisma from '../config/prisma.js'
 
 export const getAll = async () => {
-  return await prisma.review.findMany()
+  return await prisma.review.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
 }
 
 export const getById = async (id) => {

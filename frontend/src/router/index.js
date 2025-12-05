@@ -4,6 +4,8 @@ import HomeView from '@/views/HomeView.vue'
 import AboutView from '@/views/AboutView.vue'
 import ServicesView from '@/views/ServicesView.vue'
 import ReviewsView from '@/views/ReviewsView.vue'
+import GalleryView from '@/views/GalerryView.vue'
+import AdminView from '@/views/AdminView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,7 +33,18 @@ const router = createRouter({
           path: 'reviews',
           name: 'reviews',
           component: ReviewsView
-        }
+        },
+        {
+          path: 'gallery',
+          name: 'gallery',
+          component: GalleryView
+        },
+        {
+          path: 'admin-panel',
+          name: 'admin-panel',
+          component: AdminView
+        },
+        
       ]
     }
   ]

@@ -64,8 +64,9 @@ import { useRoute, RouterLink } from 'vue-router'
 const route = useRoute()
 const isLoggedIn = ref(false)
 const isMobileMenuOpen = ref(false)
+const isAdmin = true;
 
-const navLinks = [
+const baseNavLinks = [
   { name: 'Domov', path: '/' },
   { name: 'Služby', path: '/services' },
   { name: 'Galéria', path: '/gallery' },
@@ -73,6 +74,11 @@ const navLinks = [
   { name: 'O nás', path: '/about' },
   { name: 'Kontakt', path: '/contact' }
 ]
+let navLinks = [...baseNavLinks];
+
+if (isAdmin) {
+  navLinks.push({ name: 'Admin panel', path: '/admin-panel' }); 
+}
 
 const toggleLogin = () => {
   isLoggedIn.value = !isLoggedIn.value

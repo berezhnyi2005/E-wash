@@ -214,6 +214,7 @@ onMounted(fetchServices)
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
 /* CARD */
 .card-service {
   padding: 20px;
