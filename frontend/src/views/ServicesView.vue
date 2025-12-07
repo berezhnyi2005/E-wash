@@ -20,26 +20,22 @@
         </button>
       </header>
 
-      <!-- Loading -->
       <div v-if="loading" class="loading-text">
         Načítavam služby…
       </div>
 
-      <!-- Error -->
       <div v-else-if="error" class="error-text">
         {{ error }}
       </div>
 
 
 
-      <!-- GRID LAYOUT -->
       <div v-else class="services-grid">
         <div
           v-for="service in services"
           :key="service.id"
           class="card-service"
         >
-          <!-- header -->
           <header class="card-service-header">
             <h2 class="card-service-title">{{ service.title }}</h2>
 
@@ -48,17 +44,14 @@
             </span>
           </header>
 
-          <!-- popis -->
           <p class="card-service-description">
             {{ service.description || 'Popis služby bude čoskoro doplnený.' }}
           </p>
 
-          <!-- meta info -->
           <div class="card-service-meta">
             <span> ⏱ Trvanie cca: {{ service.durationMin }} min </span>
           </div>
 
-          <!-- akcie -->
           <div class="card-service-actions">
             <button class="btn btn-primary">Rezervovať</button>
 
@@ -76,7 +69,6 @@
       </div>
     </div>
 
-    <!-- Modal -->
     <ServiceModal
       v-if="modalVisible"
       v-model:visible="modalVisible"
@@ -89,7 +81,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import ServiceModal from '@/components/ServiceModal.vue'
+import ServiceModal from '@/components/modal/ServiceModal.vue'
 
 const isAdmin = true
 
@@ -157,7 +149,6 @@ const requestDelete = async (id) => {
   }
 }
 
-// 🔥 ВАЖНО: реальная обработка создания / редактирования
 const handleSaveService = async (formData) => {
   console.log('handleSaveService payload:', formData)
 
@@ -167,7 +158,6 @@ const handleSaveService = async (formData) => {
     let url = `${API_BASE}/api/services`
     let method = 'POST'
 
-    // Редактирование существующей услуги
     if (mode === 'edit' && id) {
       url = `${API_BASE}/api/services/${id}`
       method = 'PUT'
@@ -215,7 +205,6 @@ onMounted(fetchServices)
   }
 }
 
-/* CARD */
 .card-service {
   padding: 20px;
   border-radius: 12px;
@@ -231,7 +220,6 @@ onMounted(fetchServices)
   box-shadow: 0 16px 32px var(--blue-light);
 }
 
-/* header */
 .card-service-header {
   display: flex;
   justify-content: space-between;
@@ -247,7 +235,6 @@ onMounted(fetchServices)
   font-weight: bold;
 }
 
-/* texty */
 .card-service-description {
   font-size: 15px;
   color: var(--color-text-muted);
@@ -258,7 +245,6 @@ onMounted(fetchServices)
   color: var(--color-text-muted);
 }
 
-/* actions */
 .card-service-actions {
   margin-top: 10px;
   display: flex;
@@ -270,7 +256,6 @@ onMounted(fetchServices)
   gap: 8px;
 }
 
-/* loading + error */
 .loading-text {
   text-align: center;
   padding: 25px 0;

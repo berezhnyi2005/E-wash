@@ -6,7 +6,7 @@
       </h2>
 
       <form @submit.prevent="handleSubmit" class="modal-form">
-        <!-- Рейтинг звёздами -->
+        
         <div class="form-field">
           <label class="form-field-label" for="review-rating">
             Hodnotenie (1 – 5)

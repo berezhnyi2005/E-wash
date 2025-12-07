@@ -6,18 +6,29 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+enum Role {
+  USER
+  ADMIN
+}
+
 
 
 model User {
-  id          Int       @id @default(autoincrement())
-  name        String?
-  email       String    @unique
-  password    String
-  role        String    @default("user")
-  createdAt   DateTime  @default(now())
-  reviews     Review[]
-  appointments Appointment[]
+  id                Int       @id @default(autoincrement())
+  name              String
+  email             String    @unique
+  passwordHash      String?        // <---
+  role              Role      @default(USER)
+  isVerified        Boolean   @default(false)
+  verificationToken String?   @unique
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime?      // <---
+  
+  appointments      Appointment[]
+  reviews           Review[]
 }
+
+
 
 model Service {
   id          Int       @id @default(autoincrement())

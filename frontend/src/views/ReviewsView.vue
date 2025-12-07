@@ -1,186 +1,185 @@
 <template>
-    <div class="page-container">
-      <header class="section-header">
-        <div>
-          <h1 class="section-header-title">Hodnotenia zákazníkov</h1>
+  <div class="page-container">
+    <header class="section-header">
+      <div>
+        <h1 class="section-header-title">Hodnotenia zákazníkov</h1>
 
-          <p class="section-header-description">
-            Prečítajte si skúsenosti našich zákazníkov s ručnou autoumývarňou E-Wash.
-          </p>
-          
-        </div>
-
-        <div class="reviews-header-right">
-          <div
-            v-if="totalReviews > 0"
-            class="reviews-summary"
-          >
-            <div class="reviews-summary-main">
-              <span class="reviews-summary-score">
-                {{ averageRating.toFixed(1) }}
-              </span>
-              <div class="reviews-summary-stars">
-                <span
-                  v-for="star in 5"
-                  :key="star"
-                  class="star"
-                  :class="{ active: star <= Math.round(averageRating) }"
-                >
-                  ★
-                </span>
-              </div>
-            </div>
-            <div class="reviews-summary-meta">
-              {{ totalReviews }} hodnotení
-            </div>
-          </div>
-
-          <button
-            type="button"
-            class="btn btn-green"
-            @click="openCreateReview"
-          >
-            Napísať recenziu
-          </button>
-        </div>
-      </header>
-
-      <div v-if="loading" class="loading-text">
-        Načítavam hodnotenia…
+        <p class="section-header-description">
+          Prečítajte si skúsenosti našich zákazníkov s ručnou autoumývarňou E-Wash.
+        </p>
       </div>
 
-      <div v-else-if="error" class="error-text">
-        {{ error }}
-      </div>
-
-      <div
-        v-else-if="!reviews.length"
-        class="empty-text"
-      >
-        Zatiaľ nemáme žiadne recenzie. Buďte prvý, kto ohodnotí naše služby.
-      </div>
-
-      <div
-        v-else
-        class="reviews-list"
-      >
+      <div class="reviews-header-right">
         <div
-          v-for="review in reviews"
-          :key="review.id"
-          class="review-card"
+          v-if="totalReviews > 0"
+          class="reviews-summary"
         >
-          <header class="review-card-header">
-            <div class="review-user">
-              <div class="review-avatar">
-                {{getInitials( review.user?.name )}}
-              </div>
-              <div>
-                <div class="review-user-name">
-                  {{ review.user?.name || 'Anonymný zákazník' }}
-                </div>
-                <div class="review-date">
-                  {{ formatDate(review.createdAt) }}
-                </div>
-              </div>
-            </div>
-
-            <div class="review-rating">
+          <div class="reviews-summary-main">
+            <span class="reviews-summary-score">
+              {{ averageRating.toFixed(1) }}
+            </span>
+            <div class="reviews-summary-stars">
               <span
                 v-for="star in 5"
                 :key="star"
                 class="star"
-                :class="{ active: star <= (review.rating || 0) }"
+                :class="{ active: star <= Math.round(averageRating) }"
               >
                 ★
               </span>
             </div>
-          </header>
-
-          <p class="review-comment">
-            {{ review.comment }}
-          </p>
-
-          <div
-            v-if="review.imgReview"
-            class="review-image-wrapper"
-          >
-            <img
-              :src="review.imgReview"
-              alt="Foto recenzie"
-              class="review-image"
-            />
           </div>
+          <div class="reviews-summary-meta">
+            {{ totalReviews }} hodnotení
+          </div>
+        </div>
 
-          <div
-            v-if="review.adminReview"
-            class="review-admin-reply"
-          >
-            <div class="review-admin-label">
-              Odpoveď E-Wash
+        <button
+          type="button"
+          class="btn btn-green"
+          @click="openCreateReview"
+        >
+          Napísať recenziu
+        </button>
+      </div>
+    </header>
+
+    <div v-if="loading" class="loading-text">
+      Načítavam hodnotenia…
+    </div>
+
+    <div v-else-if="error" class="error-text">
+      {{ error }}
+    </div>
+
+    <div
+      v-else-if="!reviews.length"
+      class="empty-text"
+    >
+      Zatiaľ nemáme žiadne recenzie. Buďte prvý, kto ohodnotí naše služby.
+    </div>
+
+    <div
+      v-else
+      class="reviews-list"
+    >
+      <div
+        v-for="review in reviews"
+        :key="review.id"
+        class="review-card"
+      >
+        <header class="review-card-header">
+          <div class="review-user">
+            <div class="review-avatar">
+              {{ getInitials(review.user?.name) }}
             </div>
-            <p class="review-admin-text">
-              {{ review.adminReview }}
-            </p>
+            <div>
+              <div class="review-user-name">
+                {{ review.user?.name || 'Anonymný zákazník' }}
+              </div>
+              <div class="review-date">
+                {{ formatDate(review.createdAt) }}
+              </div>
+            </div>
           </div>
 
-          <div
-            v-if="isAdmin"
-            class="review-admin-actions"
+          <div class="review-rating">
+            <span
+              v-for="star in 5"
+              :key="star"
+              class="star"
+              :class="{ active: star <= (review.rating || 0) }"
+            >
+              ★
+            </span>
+          </div>
+        </header>
+
+        <p class="review-comment">
+          {{ review.comment }}
+        </p>
+
+        <div
+          v-if="review.imgReview"
+          class="review-image-wrapper"
+        >
+          <img
+            :src="review.imgReview"
+            alt="Foto recenzie"
+            class="review-image"
+          />
+        </div>
+
+        <div
+          v-if="review.adminReview"
+          class="review-admin-reply"
+        >
+          <div class="review-admin-label">
+            Odpoveď E-Wash
+          </div>
+          <p class="review-admin-text">
+            {{ review.adminReview }}
+          </p>
+        </div>
+
+        <div
+          v-if="isAdmin"
+          class="review-admin-actions"
+        >
+          <button
+            v-if="!review.adminReview"
+            type="button"
+            class="btn btn-ghost"
+            @click="openReplyModal(review, 'create')"
           >
-            <button
-              v-if="!review.adminReview"
-              type="button"
-              class="btn btn-ghost"
-              @click="openReplyModal(review, 'create')"
-            >
-              Odpovedať
-            </button>
+            Odpovedať
+          </button>
 
-            <button
-              v-else
-              type="button"
-              class="btn btn-ghost"
-              @click="openReplyModal(review, 'edit')"
-            >
-              Upraviť odpoveď
-            </button>
+          <button
+            v-else
+            type="button"
+            class="btn btn-ghost"
+            @click="openReplyModal(review, 'edit')"
+          >
+            Upraviť odpoveď
+          </button>
 
-            <button
-              type="button"
-              class="btn btn-danger"
-              @click="deleteReview(review.id)"
-            >
-              Vymazať recenziu
-            </button>
-          </div>
+          <button
+            type="button"
+            class="btn btn-danger"
+            @click="deleteReview(review.id)"
+          >
+            Vymazať recenziu
+          </button>
         </div>
       </div>
     </div>
+  </div>
 
-    <ReviewModal
-      v-if="reviewModalVisible"
-      v-model:visible="reviewModalVisible"
-      :mode="reviewModalMode"
-      :review="selectedReview"
-      @save="saveReview"
-    />
+  <ReviewModal
+    v-if="reviewModalVisible"
+    v-model:visible="reviewModalVisible"
+    :mode="reviewModalMode"
+    :review="selectedReview"
+    @save="saveReview"
+  />
 
-    <ReviewReplyModal
-      v-if="replyModalVisible"
-      v-model:visible="replyModalVisible"
-      :mode="replyModalMode"
-      :review="selectedReview"
-      @save="saveReply"
-    />
+  <ReviewReplyModal
+    v-if="replyModalVisible"
+    v-model:visible="replyModalVisible"
+    :mode="replyModalMode"
+    :review="selectedReview"
+    @save="saveReply"
+  />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import ReviewModal from '@/components/ReviewModal.vue'
-import ReviewReplyModal from '@/components/ReviewReplyModal.vue'
+import ReviewModal from '@/components/modal/ReviewModal.vue'
+import ReviewReplyModal from '@/components/modal/ReviewReplyModal.vue'
 
 const isAdmin = true
-const CURRENT_USER_ID = 1 //lebo zatial nemame registraciu spravenu
+const CURRENT_USER_ID = 1 // zatial nemame registraciu
 const API_BASE = 'http://localhost:5000'
 
 const reviews = ref([])
@@ -196,6 +195,7 @@ const replyModalMode = ref('create')
 
 const apiRequest = async (method, url, body = null) => {
   const options = { method, headers: {} }
+
   if (body !== null) {
     options.headers['Content-Type'] = 'application/json'
     options.body = JSON.stringify(body)
@@ -203,8 +203,9 @@ const apiRequest = async (method, url, body = null) => {
 
   const res = await fetch(url, options)
   let data = null
-    data = await res.json()
-    console.log("PIKAPI", data)
+
+  data = await res.json()
+  console.log('PIKAPI', data)
 
   if (!res.ok) {
     throw new Error(data?.message || data?.error || `HTTP ${res.status}`)
@@ -220,13 +221,12 @@ const getReviews = async () => {
   try {
     const json = await apiRequest('GET', `${API_BASE}/api/reviews`)
     reviews.value = Array.isArray(json?.data) ? json.data : []
-     console.log('💾 reviews z API:', reviews.value)
+    console.log('💾 reviews z API:', reviews.value)
   } catch (err) {
     error.value = err.message || 'Chyba pri načítavaní hodnotení.'
   } finally {
     loading.value = false
   }
-
 }
 
 const totalReviews = computed(() => reviews.value.length)
@@ -237,7 +237,6 @@ const averageRating = computed(() => {
   return sum / reviews.value.length
 })
 
-
 const formatDate = (iso) => {
   if (!iso) return ''
   const d = new Date(iso)
@@ -247,13 +246,13 @@ const formatDate = (iso) => {
     year: 'numeric'
   })
 }
+
 const getInitials = (name) => {
   if (!name) return 'E'
   const parts = name.trim().split(' ')
   if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
   return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase()
 }
-
 
 const openCreateReview = () => {
   reviewModalMode.value = 'create'
@@ -303,7 +302,7 @@ const saveReply = async ({ id, adminReview }) => {
 }
 
 const deleteReview = async (id) => {
-  if (!window.confirm('Naozaj chcete vymazať túto recenziu?')) return //zmenim na modal Confirmation Window v buduznosti
+  if (!window.confirm('Naozaj chcete vymazať túto recenziu?')) return // zmenim na modal v buducnosti
 
   try {
     await apiRequest('DELETE', `${API_BASE}/api/reviews/${id}`)
@@ -313,16 +312,18 @@ const deleteReview = async (id) => {
   }
 }
 
-onMounted(getReviews) // подтянуть отзывы при загрузке компонента
+onMounted(getReviews)
 </script>
 
 <style scoped>
+/* Pravá strana заголовка: summary + кнопка */
 .reviews-header-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+/* Блок со средней оценкой */
 .reviews-summary {
   display: flex;
   flex-direction: column;
@@ -356,12 +357,14 @@ onMounted(getReviews) // подтянуть отзывы при загрузке
   color: var(--color-text-muted);
 }
 
+/* Список отзывов */
 .reviews-list {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
+/* Карточка отзыва */
 .review-card {
   padding: 18px 20px;
   border-radius: 14px;
@@ -372,12 +375,14 @@ onMounted(getReviews) // подтянуть отзывы при загрузке
   gap: 10px;
 }
 
+/* Хедер карточки: пользователь + рейтинг */
 .review-card-header {
   display: flex;
   justify-content: space-between;
   gap: 12px;
 }
 
+/* Блок пользователя */
 .review-user {
   display: flex;
   align-items: center;
@@ -463,6 +468,7 @@ onMounted(getReviews) // подтянуть отзывы при загрузке
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .empty-text,
@@ -480,5 +486,82 @@ onMounted(getReviews) // подтянуть отзывы при загрузке
 
 .error-text {
   color: var(--red);
+}
+
+@media (max-width: 768px) {
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .section-header-title {
+    font-size: 22px;
+  }
+
+  .section-header-description {
+    font-size: 14px;
+  }
+
+  .reviews-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .reviews-summary {
+    align-items: flex-start;
+    flex: 1;
+  }
+
+  .reviews-summary-score {
+    font-size: 22px;
+  }
+
+  .reviews-header-right .btn {
+    white-space: nowrap;
+  }
+
+  .review-card {
+    padding: 14px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .reviews-header-right {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .reviews-summary {
+    width: 100%;
+  }
+
+  .reviews-header-right .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .review-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .review-rating {
+    margin-top: 4px;
+  }
+
+  .review-admin-actions {
+    justify-content: flex-start;
+  }
+
+  .review-admin-actions .btn {
+    flex: 1 1 100%;
+  }
+
+  .review-comment {
+    font-size: 13px;
+  }
 }
 </style>

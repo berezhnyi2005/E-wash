@@ -1,15 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'
-import HomeView from '@/views/HomeView.vue'
-import AboutView from '@/views/AboutView.vue'
-import ServicesView from '@/views/ServicesView.vue'
-import ReviewsView from '@/views/ReviewsView.vue'
-import GalleryView from '@/views/GalerryView.vue'
-import AdminView from '@/views/AdminView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    
+    /*{
+      path: '/login',
+      name: 'Login',
+      component: () => import('@/views/LoginView.vue')
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      component: () => import('@/views/RegisterView.vue')
+    },
+    */
+
     {
       path: '/',
       component: MainLayout,
@@ -17,37 +24,55 @@ const router = createRouter({
         {
           path: '',
           name: 'home',
-          component: HomeView
+          component: () => import('@/views/HomeView.vue')
         },
         {
           path: 'about',
           name: 'about',
-          component: AboutView
+          component: () => import('@/views/AboutView.vue')
         },
-         {
+        {
           path: 'services',
           name: 'services',
-          component: ServicesView
+          component: () => import('@/views/ServicesView.vue')
         },
         {
           path: 'reviews',
           name: 'reviews',
-          component: ReviewsView
+          component: () => import('@/views/ReviewsView.vue')
         },
         {
           path: 'gallery',
           name: 'gallery',
-          component: GalleryView
+          component: () => import('@/views/GalerryView.vue')
+        },
+         {
+          path: 'contact',
+          name: 'contaсt',
+          component: () => import('@/views/ContactView.vue')
         },
         {
           path: 'admin-panel',
           name: 'admin-panel',
-          component: AdminView
-        },
-        
+          component: () => import('@/views/AdminView.vue')
+        }
       ]
     }
   ]
 })
+
+
+/*router.beforeEach((to, from, next) => {
+  const user = JSON.parse(localStorage.getItem("user"))
+  
+  const publicPages = ['/login', '/register']
+
+  if (!user && !publicPages.includes(to.path)) {
+    return next('/login')
+  }
+
+  next()
+})
+  */
 
 export default router
