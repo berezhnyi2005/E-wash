@@ -2,12 +2,10 @@
   <header class="header-root">
     <div class="header-container">
 
-      <!-- LOGO -->
       <RouterLink to="/" class="header-logo">
         <span>PREMIUM WASH</span>
       </RouterLink>
 
-      <!-- MOBILE MENU TOGGLE -->
       <button
         class="header-menu-btn"
         type="button"
@@ -18,7 +16,6 @@
         <span class="header-menu-line"></span>
       </button>
 
-      <!-- NAVIGATION -->
       <nav
         class="header-nav"
         :class="{ 'mobile-open': isMobileMenuOpen }"
@@ -35,7 +32,6 @@
         </RouterLink>
       </nav>
 
-      <!-- LOGIN / AVATAR -->
       <div class="header-auth">
         <button
           v-if="!isLoggedIn"
@@ -96,7 +92,6 @@ const closeMobileMenu = () => {
 </script>
 
 <style scoped>
-/* --- ROOT HEADER --- */
 .header-root {
   position: fixed;
   top: 0;
@@ -108,7 +103,6 @@ const closeMobileMenu = () => {
   z-index: 50;
 }
 
-/* --- FLEX WRAPPER --- */
 .header-container {
   max-width: 1152px;
   height: 100%;
@@ -121,7 +115,6 @@ const closeMobileMenu = () => {
   gap: 12px;
 }
 
-/* --- LOGO --- */
 .header-logo {
   font-size: 17px;
   font-weight: 700;
@@ -138,7 +131,6 @@ const closeMobileMenu = () => {
   background-color: var(--blue-dark);
 }
 
-/* --- MOBILE MENU BUTTON (BURGER) --- */
 .header-menu-btn {
   display: inline-flex;
   flex-direction: column;
@@ -151,7 +143,6 @@ const closeMobileMenu = () => {
   cursor: pointer;
 }
 
-/* скрываем бургер на больших экранах */
 @media (min-width: 768px) {
   .header-menu-btn {
     display: none;
@@ -165,12 +156,10 @@ const closeMobileMenu = () => {
   border-radius: 999px;
 }
 
-/* --- NAVIGATION --- */
 .header-nav {
   display: none;
 }
 
-/* DESKTOP NAV */
 @media (min-width: 768px) {
   .header-nav {
     display: flex;
@@ -179,7 +168,6 @@ const closeMobileMenu = () => {
   }
 }
 
-/* MOBILE NAV (ДРОПДАУН) */
 .header-nav.mobile-open {
   position: absolute;
   top: 72px;
@@ -192,7 +180,6 @@ const closeMobileMenu = () => {
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
 }
 
-/* --- LINKS --- */
 .nav-link {
   font-size: 15px;
   color: var(--color-text-muted);
@@ -200,32 +187,25 @@ const closeMobileMenu = () => {
   padding-bottom: 3px;
 }
 
-/* на мобиле ссылки на всю ширину и чуть больше отступов */
 .header-nav.mobile-open .nav-link {
   padding: 6px 4px;
 }
 
-/* hover */
 .nav-link:hover {
   color: var(--color-text-main);
 }
 
-/* активная ссылка */
 .nav-link.active {
   color: var(--blue);
   font-weight: 600;
   border-bottom: 2px solid var(--blue);
 }
 
-/* --- RIGHT SIDE (LOGIN / AVATAR) --- */
 .header-auth {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
-/* прячем кнопку логина на очень узких экранах, если надо сильно экономить место */
-/* можно убрать, если хочешь всегда видеть кнопку */
 @media (max-width: 360px) {
   .header-auth {
     display: none;

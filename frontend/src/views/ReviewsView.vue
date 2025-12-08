@@ -10,14 +10,9 @@
       </div>
 
       <div class="reviews-header-right">
-        <div
-          v-if="totalReviews > 0"
-          class="reviews-summary"
-        >
+        <div v-if="totalReviews > 0" class="reviews-summary">
           <div class="reviews-summary-main">
-            <span class="reviews-summary-score">
-              {{ averageRating.toFixed(1) }}
-            </span>
+            <span class="reviews-summary-score">{{ averageRating.toFixed(1) }}</span>
             <div class="reviews-summary-stars">
               <span
                 v-for="star in 5"
@@ -34,40 +29,25 @@
           </div>
         </div>
 
-        <button
-          type="button"
-          class="btn btn-green"
-          @click="openCreateReview"
-        >
+        <button type="button" class="btn btn-green" @click="openCreateReview">
           Napísať recenziu
         </button>
       </div>
     </header>
 
-    <div v-if="loading" class="loading-text">
-      Načítavam hodnotenia…
-    </div>
+    <div v-if="loading" class="loading-text">Načítavam hodnotenia…</div>
 
-    <div v-else-if="error" class="error-text">
-      {{ error }}
-    </div>
+    <div v-else-if="error" class="error-text">{{ error }}</div>
 
-    <div
-      v-else-if="!reviews.length"
-      class="empty-text"
-    >
+    <div v-else-if="!reviews.length" class="empty-text">
       Zatiaľ nemáme žiadne recenzie. Buďte prvý, kto ohodnotí naše služby.
     </div>
 
-    <div
-      v-else
-      class="reviews-list"
-    >
-      <div
-        v-for="review in reviews"
-        :key="review.id"
-        class="review-card"
-      >
+    <!-- LIST OF REVIEWS -->
+    <div v-else class="reviews-list">
+      <div v-for="review in reviews" :key="review.id" class="review-card">
+
+        <!-- HEADER -->
         <header class="review-card-header">
           <div class="review-user">
             <div class="review-avatar">
@@ -95,37 +75,25 @@
           </div>
         </header>
 
+        <!-- COMMENT -->
         <p class="review-comment">
           {{ review.comment }}
         </p>
 
-        <div
-          v-if="review.imgReview"
-          class="review-image-wrapper"
-        >
-          <img
-            :src="review.imgReview"
-            alt="Foto recenzie"
-            class="review-image"
-          />
+        <!-- IMAGE -->
+        <div v-if="review.imgReview" class="review-image-wrapper">
+          <img :src="review.imgReview" alt="Foto recenzie" class="review-image" />
         </div>
 
-        <div
-          v-if="review.adminReview"
-          class="review-admin-reply"
-        >
-          <div class="review-admin-label">
-            Odpoveď E-Wash
-          </div>
-          <p class="review-admin-text">
-            {{ review.adminReview }}
-          </p>
+        <!-- ADMIN ANSWER -->
+        <div v-if="review.adminReview" class="review-admin-reply">
+          <div class="review-admin-label">Odpoveď E-Wash</div>
+          <p class="review-admin-text">{{ review.adminReview }}</p>
         </div>
 
-        <div
-          v-if="isAdmin"
-          class="review-admin-actions"
-        >
+        <!-- ADMIN ACTIONS -->
+        <div v-if="isAdmin" class="review-admin-actions">
+
           <button
             v-if="!review.adminReview"
             type="button"
@@ -147,15 +115,17 @@
           <button
             type="button"
             class="btn btn-danger"
-            @click="deleteReview(review.id)"
+            @click="askDeleteReview(review.id)"
           >
             Vymazať recenziu
           </button>
+
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Modals -->
   <ReviewModal
     v-if="reviewModalVisible"
     v-model:visible="reviewModalVisible"
@@ -171,21 +141,31 @@
     :review="selectedReview"
     @save="saveReply"
   />
+
+  <!-- Confirm Delete Modal -->
+  <ConfirmModal
+    v-model:visible="confirmDeleteVisible"
+    @confirm="deleteReviewConfirmed"
+  />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+
 import ReviewModal from '@/components/modal/ReviewModal.vue'
 import ReviewReplyModal from '@/components/modal/ReviewReplyModal.vue'
+import ConfirmModal from '@/components/modal/ConfirmModal.vue'
 
 const isAdmin = true
-const CURRENT_USER_ID = 1 // zatial nemame registraciu
+const CURRENT_USER_ID = 1
 const API_BASE = 'http://localhost:5000'
 
+// DATA
 const reviews = ref([])
 const loading = ref(false)
 const error = ref('')
 
+// MODALS
 const reviewModalVisible = ref(false)
 const reviewModalMode = ref('create')
 const selectedReview = ref(null)
@@ -193,6 +173,29 @@ const selectedReview = ref(null)
 const replyModalVisible = ref(false)
 const replyModalMode = ref('create')
 
+// CONFIRM DELETE
+const confirmDeleteVisible = ref(false)
+let reviewToDelete = null
+
+const askDeleteReview = (id) => {
+  reviewToDelete = id
+  confirmDeleteVisible.value = true
+}
+
+const deleteReviewConfirmed = async () => {
+  if (!reviewToDelete) return
+
+  try {
+    await apiRequest('DELETE', `${API_BASE}/api/reviews/${reviewToDelete}`)
+    reviews.value = reviews.value.filter(r => r.id !== reviewToDelete)
+  } catch (err) {
+    alert(err.message || 'Nepodarilo sa vymazať recenziu.')
+  }
+
+  reviewToDelete = null
+}
+
+// UNIVERSAL FETCH WRAPPER
 const apiRequest = async (method, url, body = null) => {
   const options = { method, headers: {} }
 
@@ -202,58 +205,48 @@ const apiRequest = async (method, url, body = null) => {
   }
 
   const res = await fetch(url, options)
-  let data = null
+  const json = await res.json()
 
-  data = await res.json()
-  console.log('PIKAPI', data)
+  if (!res.ok) throw new Error(json?.message || json?.error)
 
-  if (!res.ok) {
-    throw new Error(data?.message || data?.error || `HTTP ${res.status}`)
-  }
-
-  return data
+  return json
 }
 
+// LOAD REVIEWS
 const getReviews = async () => {
   loading.value = true
   error.value = ''
 
   try {
     const json = await apiRequest('GET', `${API_BASE}/api/reviews`)
-    reviews.value = Array.isArray(json?.data) ? json.data : []
-    console.log('💾 reviews z API:', reviews.value)
+    reviews.value = Array.isArray(json.data) ? json.data : []
   } catch (err) {
-    error.value = err.message || 'Chyba pri načítavaní hodnotení.'
+    error.value = err.message
   } finally {
     loading.value = false
   }
 }
 
+// CALCULATIONS
 const totalReviews = computed(() => reviews.value.length)
 
 const averageRating = computed(() => {
   if (!reviews.value.length) return 0
-  const sum = reviews.value.reduce((acc, r) => acc + (r.rating || 0), 0)
-  return sum / reviews.value.length
+  return reviews.value.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.value.length
 })
 
 const formatDate = (iso) => {
-  if (!iso) return ''
   const d = new Date(iso)
-  return d.toLocaleDateString('sk-SK', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
+  return d.toLocaleDateString('sk-SK')
 }
 
 const getInitials = (name) => {
   if (!name) return 'E'
-  const parts = name.trim().split(' ')
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
-  return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase()
+  const n = name.trim().split(' ')
+  return (n[0][0] + (n[1]?.[0] || '')).toUpperCase()
 }
 
+// OPEN MODALS
 const openCreateReview = () => {
   reviewModalMode.value = 'create'
   selectedReview.value = null
@@ -263,59 +256,44 @@ const openCreateReview = () => {
 const openReplyModal = (review, mode) => {
   replyModalMode.value = mode
   selectedReview.value = { ...review }
-  replyModalVisible.value = true    
+  replyModalVisible.value = true
 }
 
-
+// SAVE REVIEW
 const saveReview = async (formData) => {
-  let method = 'POST'
   let url = `${API_BASE}/api/reviews`
+  let method = 'POST'
 
   if (formData.mode === 'edit' && selectedReview.value?.id) {
-    method = 'PUT'
     url = `${API_BASE}/api/reviews/${selectedReview.value.id}`
-  }
-
-  const payload = {
-    userId: CURRENT_USER_ID,
-    rating: formData.rating,
-    comment: formData.comment,
-    imgReview: formData.imgReview || null
+    method = 'PUT'
   }
 
   try {
-    await apiRequest(method, url, payload)
+    await apiRequest(method, url, {
+      userId: CURRENT_USER_ID,
+      rating: formData.rating,
+      comment: formData.comment,
+      imgReview: formData.imgReview || null
+    })
     await getReviews()
   } catch (err) {
-    alert(err.message || 'Nepodarilo sa uložiť recenziu.')
+    alert(err.message)
   }
 }
 
+// SAVE REPLY
 const saveReply = async ({ id, adminReview }) => {
-  if (!id) return
-
   try {
     await apiRequest('PUT', `${API_BASE}/api/reviews/${id}`, { adminReview })
     await getReviews()
   } catch (err) {
-    alert(err.message || 'Nepodarilo sa uložiť odpoveď.')
-  }
-}
-
-const deleteReview = async (id) => {
-  if (!window.confirm('Naozaj chcete vymazať túto recenziu?')) return // zmenim na modal v buducnosti
-
-  try {
-    await apiRequest('DELETE', `${API_BASE}/api/reviews/${id}`)
-    reviews.value = reviews.value.filter((r) => r.id !== id)
-  } catch (err) {
-    alert(err.message || 'Nepodarilo sa vymazať recenziu.')
+    alert(err.message)
   }
 }
 
 onMounted(getReviews)
 </script>
-
 <style scoped>
 /* Pravá strana заголовка: summary + кнопка */
 .reviews-header-right {

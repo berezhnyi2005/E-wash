@@ -20,16 +20,17 @@
         </button>
       </header>
 
+      <!-- Loading -->
       <div v-if="loading" class="loading-text">
         Načítavam služby…
       </div>
 
+      <!-- Error -->
       <div v-else-if="error" class="error-text">
         {{ error }}
       </div>
 
-
-
+      <!-- GRID -->
       <div v-else class="services-grid">
         <div
           v-for="service in services"
@@ -60,7 +61,10 @@
                 Upraviť
               </button>
 
-              <button class="btn btn-danger" @click="requestDelete(service.id)">
+              <button
+                class="btn btn-danger"
+                @click="askDeleteService(service.id)"
+              >
                 Vymazať
               </button>
             </div>
@@ -69,6 +73,7 @@
       </div>
     </div>
 
+    <!-- Modal na vytvorenie / úpravu služby -->
     <ServiceModal
       v-if="modalVisible"
       v-model:visible="modalVisible"
@@ -76,12 +81,19 @@
       :service="selectedService"
       @save="handleSaveService"
     />
+
+    <!-- Confirm delete modal -->
+    <ConfirmModal
+      v-model:visible="confirmDeleteVisible"
+      @confirm="deleteServiceConfirmed"
+    />
   </section>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import ServiceModal from '@/components/modal/ServiceModal.vue'
+import ConfirmModal from '@/components/modal/ConfirmModal.vue'
 
 const isAdmin = true
 
@@ -92,6 +104,9 @@ const error = ref('')
 const modalVisible = ref(false)
 const modalMode = ref('create')
 const selectedService = ref(null)
+
+const confirmDeleteVisible = ref(false)
+const serviceToDelete = ref(null)
 
 const API_BASE = 'http://localhost:5000'
 
@@ -113,11 +128,11 @@ const fetchServices = async () => {
 }
 
 const formatPrice = (value) => {
-  if (!value) return '-'
+  if (!value && value !== 0) return '-'
   return new Intl.NumberFormat('sk-SK', {
     style: 'currency',
     currency: 'EUR',
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(value)
 }
 
@@ -133,12 +148,22 @@ const openEditModal = (service) => {
   modalVisible.value = true
 }
 
-const requestDelete = async (id) => {
-  if (!confirm('Naozaj chcete vymazať túto službu?')) return
+// 1) клик по "Vymazať" — только открываем модалку
+const askDeleteService = (id) => {
+  serviceToDelete.value = id
+  confirmDeleteVisible.value = true
+}
+
+// 2) пользователь подтвердил удаление в ConfirmModal
+const deleteServiceConfirmed = async () => {
+  const id = serviceToDelete.value
+  if (!id) return
+
   try {
     const response = await fetch(`${API_BASE}/api/services/${id}`, {
       method: 'DELETE'
     })
+
     if (!response.ok) {
       throw new Error('Nepodarilo sa vymazať službu.')
     }
@@ -146,12 +171,12 @@ const requestDelete = async (id) => {
     services.value = services.value.filter((s) => s.id !== id)
   } catch (err) {
     alert(err.message)
+  } finally {
+    serviceToDelete.value = null
   }
 }
 
 const handleSaveService = async (formData) => {
-  console.log('handleSaveService payload:', formData)
-
   const { mode, id, ...payload } = formData
 
   try {
@@ -174,6 +199,7 @@ const handleSaveService = async (formData) => {
     if (!response.ok) {
       throw new Error('Nepodarilo sa uložiť službu.')
     }
+
     await fetchServices()
   } catch (err) {
     console.error('save error:', err)
@@ -183,7 +209,6 @@ const handleSaveService = async (formData) => {
 
 onMounted(fetchServices)
 </script>
-
 
 <style scoped>
 /* GRID LAYOUT: 1 → 2 → 3 v riadku */
@@ -215,6 +240,7 @@ onMounted(fetchServices)
   gap: 15px;
   transition: 0.15s ease;
 }
+
 .card-service:hover {
   transform: translateY(-4px);
   box-shadow: 0 16px 32px var(--blue-light);

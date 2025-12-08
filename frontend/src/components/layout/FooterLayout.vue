@@ -1,11 +1,8 @@
 <template>
   <footer class="footer-root">
     <div class="page-container py-14">
-
-      <!-- GRID 3 COLUMNS (CENTERED + EQUAL SPACING) -->
       <div class="footer-grid">
 
-        <!-- Kontakt -->
         <div class="footer-column">
           <h3 class="footer-title">Kontakt</h3>
 
@@ -28,7 +25,6 @@
           </div>
         </div>
 
-        <!-- Hours -->
         <div class="footer-column">
           <h3 class="footer-title">Otváracie hodiny</h3>
           <div class="footer-row">
@@ -41,7 +37,6 @@
           </div>
         </div>
 
-        <!-- Social -->
         <div class="footer-column">
           <h3 class="footer-title">Sledujte nás</h3>
 
@@ -57,7 +52,6 @@
         </div>
       </div>
 
-      <!-- FIND US -->
       <div class="footer-map-section">
         <button class="find-us-btn" @click="toggleMap">
           <span class="flex items-center gap-2">
@@ -83,7 +77,6 @@
         </transition>
       </div>
 
-      <!-- BOTTOM LINE -->
       <div class="footer-bottom">
         2026 E-Wash
       </div>
@@ -100,12 +93,11 @@ const toggleMap = () => (showMap.value = !showMap.value)
 
 <style scoped>
 .footer-root {
-  background-color: #020617; /* tmavý elegantný */
+  background-color: #020617;
   color: #e5e7eb;
   margin-top: auto;
 }
 
-/* --- GRID CENTERED --- */
 .footer-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -114,14 +106,12 @@ const toggleMap = () => (showMap.value = !showMap.value)
   margin: 0 auto;
 }
 
-/* --- COLUMN --- */
 .footer-column {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-/* --- TEXT STYLES --- */
 .footer-title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -152,7 +142,6 @@ const toggleMap = () => (showMap.value = !showMap.value)
   color: white;
 }
 
-/* --- SOCIAL BUTTONS --- */
 .social-btn {
   width: 40px;
   height: 40px;
@@ -174,7 +163,6 @@ const toggleMap = () => (showMap.value = !showMap.value)
   transform: translateY(-2px);
 }
 
-/* --- FIND US BUTTON --- */
 .footer-map-section {
   margin-top: 2rem;
 }
@@ -202,7 +190,6 @@ const toggleMap = () => (showMap.value = !showMap.value)
   background-color: var(--color-primary-dark);
 }
 
-/* MAPA */
 .map-wrapper {
   margin-top: 1rem;
   border-radius: 0.75rem;
@@ -210,7 +197,6 @@ const toggleMap = () => (showMap.value = !showMap.value)
   border: 1px solid rgba(148, 163, 184, 0.7);
 }
 
-/* ANIMÁCIA */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: opacity .2s, transform .2s;
@@ -221,7 +207,6 @@ const toggleMap = () => (showMap.value = !showMap.value)
   transform: translateY(-6px);
 }
 
-/* BOTTOM LINE */
 .footer-bottom {
   margin-top: 2.5rem;
   padding-top: 1rem;
