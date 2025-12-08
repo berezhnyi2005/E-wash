@@ -263,8 +263,9 @@ const openCreateReview = () => {
 const openReplyModal = (review, mode) => {
   replyModalMode.value = mode
   selectedReview.value = { ...review }
-  replyModalVisible.value = true
+  replyModalVisible.value = true    
 }
+
 
 const saveReview = async (formData) => {
   let method = 'POST'
@@ -433,12 +434,19 @@ onMounted(getReviews)
   color: var(--color-text-main);
 }
 
+/* Obrázok recenzie */
 .review-image-wrapper {
-  margin-top: 4px;
+  margin-top: 8px;
+  display: flex;
+  justify-content: center; /* центрируем картинку в карточке */
 }
 
 .review-image {
-  max-width: 100%;
+  width: 100%;
+  max-width: 600px;   /* чтобы не была гигантская по ширине */
+  max-height: 320px;  /* общий разумный лимит по высоте */
+  height: auto;       /* сохраняем пропорции */
+  object-fit: contain;/* НИЧЕГО не режем, просто уменьшаем */
   border-radius: 10px;
   display: block;
 }
@@ -524,6 +532,11 @@ onMounted(getReviews)
 
   .review-card {
     padding: 14px 16px;
+  }
+
+  .review-image {
+    max-width: 100%;
+    max-height: 260px;
   }
 }
 
