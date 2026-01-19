@@ -1,30 +1,37 @@
-import * as repo from '../repositories/appointmentRepository.js'
+import * as repo from "../repositories/appointmentRepository.js"
 
 export const getAllAppointments = async () => {
-  return await repo.getAll()
+  return repo.getAll()
 }
 
-export const getAppointmentById = async (id) => {
-  const appointment = await repo.getById(id)
-  if (!appointment) throw new Error('Appointment not found')
-  return appointment
+export const getMyAppointments = async (userId) => {
+  return repo.getByUserId(userId)
 }
 
-export const createAppointment = async (data) => {
-  return await repo.create(data)
+export const createAppointment = async ({ userId, serviceId, dateTime, notes }) => {
+  const existing = await repo.getByDateTimeAndService(serviceId, dateTime)
+  if (existing) {
+    throw new Error("Selected time is already booked")
+  }
+
+  return repo.create({
+    userId,
+    serviceId,
+    dateTime: new Date(dateTime),
+    status: "PENDING",
+    notes
+  })
 }
 
-export const updateAppointment = async (id, data) => {
-  const existing = await repo.getById(id)
-  if (!existing) throw new Error('Appointment not found')
+export const changeStatus = async (id, status) => {
+  const allowed = ["PENDING", "APPROVED", "CANCELLED"]
+  if (!allowed.includes(status)) {
+    throw new Error("Invalid status")
+  }
 
-  return await repo.update(id, data)
+  return repo.updateStatus(id, status)
 }
 
 export const deleteAppointment = async (id) => {
-  const existing = await repo.getById(id)
-  if (!existing) throw new Error('Appointment not found')
-
-  await repo.remove(id)
-  return true
+  return repo.remove(id)
 }

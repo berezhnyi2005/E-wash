@@ -5,7 +5,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     
-    /*{
+    {
       path: '/login',
       name: 'Login',
       component: () => import('@/views/LoginView.vue')
@@ -15,7 +15,7 @@ const router = createRouter({
       name: 'Register',
       component: () => import('@/views/RegisterView.vue')
     },
-    */
+    
 
     {
       path: '/',
@@ -62,7 +62,7 @@ const router = createRouter({
 })
 
 
-/*router.beforeEach((to, from, next) => {
+router.beforeEach((to, from, next) => {
   const user = JSON.parse(localStorage.getItem("user"))
   
   const publicPages = ['/login', '/register']
@@ -73,6 +73,6 @@ const router = createRouter({
 
   next()
 })
-  */
+  
 
 export default router

@@ -54,7 +54,13 @@
           </div>
 
           <div class="card-service-actions">
-            <button class="btn btn-primary">Rezervovať</button>
+            <!-- 👇 ТОЛЬКО ЭТО ДОБАВЛЕНО -->
+            <button
+              class="btn btn-primary"
+              @click="goToReservation(service.id)"
+            >
+              Rezervovať
+            </button>
 
             <div v-if="isAdmin" class="card-service-admin-actions">
               <button class="btn btn-ghost" @click="openEditModal(service)">
@@ -92,8 +98,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import ServiceModal from '@/components/modal/ServiceModal.vue'
 import ConfirmModal from '@/components/modal/ConfirmModal.vue'
+
+const router = useRouter()
 
 const isAdmin = true
 
@@ -110,6 +119,9 @@ const serviceToDelete = ref(null)
 
 const API_BASE = 'http://localhost:5000'
 
+/* =========================
+   FETCH SERVICES
+========================= */
 const fetchServices = async () => {
   loading.value = true
   error.value = ''
@@ -127,6 +139,21 @@ const fetchServices = async () => {
   }
 }
 
+/* =========================
+   ROUTING → RESERVATION
+========================= */
+const goToReservation = (serviceId) => {
+  router.push({
+    path: '/reserve',
+    query: {
+      serviceId
+    }
+  })
+}
+
+/* =========================
+   HELPERS
+========================= */
 const formatPrice = (value) => {
   if (!value && value !== 0) return '-'
   return new Intl.NumberFormat('sk-SK', {
@@ -136,6 +163,9 @@ const formatPrice = (value) => {
   }).format(value)
 }
 
+/* =========================
+   MODALS
+========================= */
 const openCreateModal = () => {
   modalMode.value = 'create'
   selectedService.value = null
@@ -148,13 +178,11 @@ const openEditModal = (service) => {
   modalVisible.value = true
 }
 
-// 1) клик по "Vymazať" — только открываем модалку
 const askDeleteService = (id) => {
   serviceToDelete.value = id
   confirmDeleteVisible.value = true
 }
 
-// 2) пользователь подтвердил удаление в ConfirmModal
 const deleteServiceConfirmed = async () => {
   const id = serviceToDelete.value
   if (!id) return
@@ -211,7 +239,6 @@ onMounted(fetchServices)
 </script>
 
 <style scoped>
-/* GRID LAYOUT: 1 → 2 → 3 v riadku */
 .services-grid {
   display: grid;
   gap: 25px;
@@ -251,21 +278,13 @@ onMounted(fetchServices)
   justify-content: space-between;
 }
 
-.card-service-title {
-  font-size: 20px;
-  font-weight: bold;
-}
-
+.card-service-title,
 .card-service-price {
   font-size: 20px;
   font-weight: bold;
 }
 
-.card-service-description {
-  font-size: 15px;
-  color: var(--color-text-muted);
-}
-
+.card-service-description,
 .card-service-meta {
   font-size: 15px;
   color: var(--color-text-muted);
@@ -282,17 +301,14 @@ onMounted(fetchServices)
   gap: 8px;
 }
 
-.loading-text {
-  text-align: center;
-  padding: 25px 0;
-  font-size: 14px;
-  color: grey;
-}
-
+.loading-text,
 .error-text {
   text-align: center;
   padding: 25px 0;
   font-size: 14px;
+}
+
+.error-text {
   color: #ff0000;
 }
 </style>

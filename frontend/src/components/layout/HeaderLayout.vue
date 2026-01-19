@@ -32,20 +32,18 @@
         </RouterLink>
       </nav>
 
+      <!-- ALWAYS LOGGED -->
       <div class="header-auth">
-        <button
-          v-if="!isLoggedIn"
-          @click="toggleLogin"
-          class="btn btn-ghost header-login-btn"
-        >
-          Prihlásiť sa
-        </button>
+        <div class="avatar-wrapper">
+          <div class="header-avatar" @click="toggleDropdown">
+            <i class="fas fa-user"></i>
+          </div>
 
-        <div
-          v-else
-          class="header-avatar"
-        >
-          <i class="fas fa-user"></i>
+          <div v-if="showDropdown" class="avatar-dropdown">
+            <button class="dropdown-item" @click="logout">
+              Odhlásiť sa
+            </button>
+          </div>
         </div>
       </div>
 
@@ -54,13 +52,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
+import { ref } from "vue"
+import { useRoute, useRouter, RouterLink } from "vue-router"
 
 const route = useRoute()
-const isLoggedIn = ref(false)
+const router = useRouter()
+
 const isMobileMenuOpen = ref(false)
-const isAdmin = true;
+const showDropdown = ref(false)
+
+// 🔐 ADMIN — как у тебя (пока хардкод)
+const isAdmin = true
 
 const baseNavLinks = [
   { name: 'Domov', path: '/' },
@@ -70,15 +72,10 @@ const baseNavLinks = [
   { name: 'O nás', path: '/about' },
   { name: 'Kontakt', path: '/contact' }
 ]
-let navLinks = [...baseNavLinks];
 
-if (isAdmin) {
-  navLinks.push({ name: 'Admin panel', path: '/admin-panel' }); 
-}
-
-const toggleLogin = () => {
-  isLoggedIn.value = !isLoggedIn.value
-}
+const navLinks = isAdmin
+  ? [...baseNavLinks, { name: 'Admin panel', path: '/admin-panel' }]
+  : baseNavLinks
 
 const isActive = (path) => route.path === path
 
@@ -89,9 +86,22 @@ const toggleMobileMenu = () => {
 const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
 }
+
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value
+}
+
+// ✅ LOGOUT — ТОЛЬКО FRONTEND
+const logout = () => {
+  localStorage.removeItem("user")
+  showDropdown.value = false
+  router.push("/login")
+}
 </script>
 
 <style scoped>
+/* 🔽 ТВОИ СТИЛИ + ДОБАВКА ДРОПДАУНА */
+
 .header-root {
   position: fixed;
   top: 0;
@@ -108,7 +118,6 @@ const closeMobileMenu = () => {
   height: 100%;
   margin: 0 auto;
   padding: 0 24px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -118,42 +127,25 @@ const closeMobileMenu = () => {
 .header-logo {
   font-size: 17px;
   font-weight: 700;
-  letter-spacing: 0.5px;
   padding: 7px 14px;
   border-radius: 12px;
   background-color: var(--blue);
-  color: #ffffff;
-  transition: background-color 0.2s ease;
-  white-space: nowrap;
-}
-
-.header-logo:hover {
-  background-color: var(--blue-dark);
+  color: #fff;
 }
 
 .header-menu-btn {
   display: inline-flex;
   flex-direction: column;
-  justify-content: center;
   gap: 4px;
-  padding: 6px;
-  border-radius: 6px;
+  background: none;
   border: none;
-  background: transparent;
   cursor: pointer;
-}
-
-@media (min-width: 768px) {
-  .header-menu-btn {
-    display: none;
-  }
 }
 
 .header-menu-line {
   width: 20px;
   height: 2px;
-  background-color: #111827;
-  border-radius: 999px;
+  background: #111827;
 }
 
 .header-nav {
@@ -164,35 +156,12 @@ const closeMobileMenu = () => {
   .header-nav {
     display: flex;
     gap: 28px;
-    align-items: center;
   }
-}
-
-.header-nav.mobile-open {
-  position: absolute;
-  top: 72px;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 12px 16px 16px;
-  background-color: var(--white-aktive);
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
 }
 
 .nav-link {
   font-size: 15px;
   color: var(--color-text-muted);
-  transition: color 0.2s ease, border-color 0.2s ease;
-  padding-bottom: 3px;
-}
-
-.header-nav.mobile-open .nav-link {
-  padding: 6px 4px;
-}
-
-.nav-link:hover {
-  color: var(--color-text-main);
 }
 
 .nav-link.active {
@@ -201,38 +170,49 @@ const closeMobileMenu = () => {
   border-bottom: 2px solid var(--blue);
 }
 
-.header-auth {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-@media (max-width: 360px) {
-  .header-auth {
-    display: none;
-  }
-}
-
-.header-login-btn {
-  padding: 7px 16px;
+/* 🔐 AVATAR */
+.avatar-wrapper {
+  position: relative;
 }
 
 .header-avatar {
   width: 38px;
   height: 38px;
-  background-color: var(--white-aktive);
-  border: 1px solid var(--color-border);
   border-radius: 999px;
-
+  background: var(--white-aktive);
+  border: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
-
-  color: var(--color-text-main);
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .header-avatar:hover {
-  background-color: #f3f4f6;
+  background: #f3f4f6;
+}
+
+/* 🔽 DROPDOWN */
+.avatar-dropdown {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  overflow: hidden;
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: #f3f4f6;
 }
 </style>

@@ -3,10 +3,8 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  // Удалим старые записи, если есть
   await prisma.service.deleteMany()
 
-  // Добавим тестовые услуги автомойки
   await prisma.service.createMany({
     data: [
       {
