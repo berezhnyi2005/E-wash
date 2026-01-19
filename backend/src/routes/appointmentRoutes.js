@@ -11,7 +11,7 @@ import {
 const router = express.Router()
 
 router.get("/", getAllAppointments)
-router.get("/my", getMyAppointments)
+router.get("/my/:userId", getMyAppointments)
 router.get("/busy", getBusySlots)
 router.post("/", createAppointment)
 router.patch("/:id/status", updateStatus)

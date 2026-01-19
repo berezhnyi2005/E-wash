@@ -11,12 +11,14 @@ export const getAllAppointments = async (req, res) => {
 
 export const getMyAppointments = async (req, res) => {
   try {
-    const data = await service.getMyAppointments(req.user.id)
+    const { userId } = req.params
+    const data = await service.getMyAppointments(userId)
     res.json({ status: "success", data })
   } catch (err) {
     res.status(500).json({ status: "error", message: err.message })
   }
 }
+
 
 export const getBusySlots = async (req, res) => {
   try {

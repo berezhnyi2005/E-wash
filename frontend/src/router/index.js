@@ -25,11 +25,6 @@ const router = createRouter({
           component: () => import('@/views/HomeView.vue')
         },
         {
-          path: 'about',
-          name: 'about',
-          component: () => import('@/views/AboutView.vue')
-        },
-        {
           path: 'services',
           name: 'services',
           component: () => import('@/views/ServicesView.vue')
@@ -50,14 +45,14 @@ const router = createRouter({
           component: () => import('@/views/GalerryView.vue')
         },
         {
-          path: 'contact',
-          name: 'contact',
-          component: () => import('@/views/ContactView.vue')
-        },
-        {
           path: 'admin-panel',
           name: 'admin-panel',
           component: () => import('@/views/AdminView.vue')
+        },
+        {
+          path: 'my-reservations',
+          name: 'my-reservations',
+          component: () => import('@/views/MyReservationsView.vue')
         }
       ]
     }

@@ -32,7 +32,6 @@
         </RouterLink>
       </nav>
 
-      <!-- ALWAYS LOGGED -->
       <div class="header-auth">
         <div class="avatar-wrapper">
           <div class="header-avatar" @click="toggleDropdown">
@@ -52,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { useRoute, useRouter, RouterLink } from "vue-router"
 
 const route = useRoute()
@@ -61,21 +60,23 @@ const router = useRouter()
 const isMobileMenuOpen = ref(false)
 const showDropdown = ref(false)
 
-// 🔐 ADMIN — как у тебя (пока хардкод)
-const isAdmin = true
+const user = JSON.parse(localStorage.getItem("user"))
+const role = user?.role || "USER"
 
 const baseNavLinks = [
   { name: 'Domov', path: '/' },
   { name: 'Služby', path: '/services' },
   { name: 'Galéria', path: '/gallery' },
   { name: 'Recenzie', path: '/reviews' },
-  { name: 'O nás', path: '/about' },
-  { name: 'Kontakt', path: '/contact' }
 ]
 
-const navLinks = isAdmin
-  ? [...baseNavLinks, { name: 'Admin panel', path: '/admin-panel' }]
-  : baseNavLinks
+const navLinks = computed(() => {
+  if (role === 'ADMIN') {
+    return [...baseNavLinks, { name: 'Admin panel', path: '/admin-panel' }]
+  }
+
+  return [...baseNavLinks, { name: 'Moje rezervácie', path: '/my-reservations' }]
+})
 
 const isActive = (path) => route.path === path
 
@@ -91,7 +92,6 @@ const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value
 }
 
-// ✅ LOGOUT — ТОЛЬКО FRONTEND
 const logout = () => {
   localStorage.removeItem("user")
   showDropdown.value = false
@@ -99,8 +99,8 @@ const logout = () => {
 }
 </script>
 
+
 <style scoped>
-/* 🔽 ТВОИ СТИЛИ + ДОБАВКА ДРОПДАУНА */
 
 .header-root {
   position: fixed;
@@ -170,7 +170,6 @@ const logout = () => {
   border-bottom: 2px solid var(--blue);
 }
 
-/* 🔐 AVATAR */
 .avatar-wrapper {
   position: relative;
 }
@@ -191,7 +190,6 @@ const logout = () => {
   background: #f3f4f6;
 }
 
-/* 🔽 DROPDOWN */
 .avatar-dropdown {
   position: absolute;
   top: 48px;
