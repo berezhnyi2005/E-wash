@@ -2,6 +2,7 @@ import express from "express"
 import {
   getAllAppointments,
   getMyAppointments,
+  getBusySlots,
   createAppointment,
   updateStatus,
   deleteAppointment
@@ -9,10 +10,11 @@ import {
 
 const router = express.Router()
 
-router.get("/", getAllAppointments)          // admin
-router.get("/my", getMyAppointments)         // user
+router.get("/", getAllAppointments)
+router.get("/my", getMyAppointments)
+router.get("/busy", getBusySlots)
 router.post("/", createAppointment)
-router.patch("/:id/status", updateStatus)   // admin
+router.patch("/:id/status", updateStatus)
 router.delete("/:id", deleteAppointment)
 
 export default router

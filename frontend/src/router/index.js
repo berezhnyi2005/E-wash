@@ -4,7 +4,6 @@ import MainLayout from '@/layouts/MainLayout.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    
     {
       path: '/login',
       name: 'Login',
@@ -15,7 +14,6 @@ const router = createRouter({
       name: 'Register',
       component: () => import('@/views/RegisterView.vue')
     },
-    
 
     {
       path: '/',
@@ -37,6 +35,11 @@ const router = createRouter({
           component: () => import('@/views/ServicesView.vue')
         },
         {
+          path: 'reserve',
+          name: 'reserve',
+          component: () => import('@/views/ReservationView.vue')
+        },
+        {
           path: 'reviews',
           name: 'reviews',
           component: () => import('@/views/ReviewsView.vue')
@@ -46,9 +49,9 @@ const router = createRouter({
           name: 'gallery',
           component: () => import('@/views/GalerryView.vue')
         },
-         {
+        {
           path: 'contact',
-          name: 'contaсt',
+          name: 'contact',
           component: () => import('@/views/ContactView.vue')
         },
         {
@@ -61,10 +64,8 @@ const router = createRouter({
   ]
 })
 
-
 router.beforeEach((to, from, next) => {
-  const user = JSON.parse(localStorage.getItem("user"))
-  
+  const user = JSON.parse(localStorage.getItem('user'))
   const publicPages = ['/login', '/register']
 
   if (!user && !publicPages.includes(to.path)) {

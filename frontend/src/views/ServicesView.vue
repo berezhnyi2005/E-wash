@@ -143,6 +143,16 @@ const fetchServices = async () => {
    ROUTING → RESERVATION
 ========================= */
 const goToReservation = (serviceId) => {
+  router.beforeEach((to, from, next) => {
+  const user = JSON.parse(localStorage.getItem('user'))
+  const publicPages = ['/login', '/register']
+
+  if (!user && !publicPages.includes(to.path)) {
+    return next('/login')
+  }
+
+  next()
+})
   router.push({
     path: '/reserve',
     query: {

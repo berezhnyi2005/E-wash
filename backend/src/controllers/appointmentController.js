@@ -18,21 +18,24 @@ export const getMyAppointments = async (req, res) => {
   }
 }
 
-export const createAppointment = async (req, res) => {
+export const getBusySlots = async (req, res) => {
   try {
-    const data = await service.createAppointment({
-      userId: req.body.userId,   // 👈 ВРЕМЕННО
-      serviceId: req.body.serviceId,
-      dateTime: req.body.dateTime,
-      notes: req.body.notes
-    })
-
-    res.status(201).json({ status: "success", data })
+    const { date } = req.query
+    const data = await service.getBusySlotsByDate(date)
+    res.json({ status: "success", data })
   } catch (err) {
     res.status(400).json({ status: "error", message: err.message })
   }
 }
 
+export const createAppointment = async (req, res) => {
+  try {
+    const data = await service.createAppointment(req.body)
+    res.status(201).json({ status: "success", data })
+  } catch (err) {
+    res.status(400).json({ status: "error", message: err.message })
+  }
+}
 
 export const updateStatus = async (req, res) => {
   try {

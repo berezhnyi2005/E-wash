@@ -8,12 +8,16 @@ export const getMyAppointments = async (userId) => {
   return repo.getByUserId(userId)
 }
 
-export const createAppointment = async ({ userId, serviceId, dateTime, notes }) => {
-  const existing = await repo.getByDateTimeAndService(serviceId, dateTime)
-  if (existing) {
-    throw new Error("Selected time is already booked")
-  }
+export const getBusySlotsByDate = async (date) => {
+  const appointments = await repo.getByDate(date)
 
+  return appointments.map(a => ({
+    dateTime: a.dateTime,
+    durationMin: a.service.durationMin
+  }))
+}
+
+export const createAppointment = async ({ userId, serviceId, dateTime, notes }) => {
   return repo.create({
     userId,
     serviceId,
@@ -28,7 +32,6 @@ export const changeStatus = async (id, status) => {
   if (!allowed.includes(status)) {
     throw new Error("Invalid status")
   }
-
   return repo.updateStatus(id, status)
 }
 

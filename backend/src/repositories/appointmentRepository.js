@@ -6,47 +6,37 @@ export const getAll = async () => {
       user: true,
       service: true
     },
-    orderBy: {
-      dateTime: "asc"
-    }
-  })
-}
-
-export const getById = async (id) => {
-  return prisma.appointment.findUnique({
-    where: { id: Number(id) },
-    include: {
-      user: true,
-      service: true
-    }
+    orderBy: { dateTime: "asc" }
   })
 }
 
 export const getByUserId = async (userId) => {
   return prisma.appointment.findMany({
     where: { userId: Number(userId) },
-    include: {
-      service: true
-    },
-    orderBy: {
-      dateTime: "asc"
-    }
+    include: { service: true },
+    orderBy: { dateTime: "asc" }
   })
 }
 
-export const getByDateTimeAndService = async (serviceId, dateTime) => {
-  return prisma.appointment.findFirst({
+export const getByDate = async (date) => {
+  const startOfDay = new Date(`${date}T00:00:00`)
+  const endOfDay = new Date(`${date}T23:59:59.999`)
+
+  return prisma.appointment.findMany({
     where: {
-      serviceId: Number(serviceId),
-      dateTime: new Date(dateTime)
+      dateTime: {
+        gte: startOfDay,
+        lte: endOfDay
+      }
+    },
+    include: {
+      service: true
     }
   })
 }
 
 export const create = async (data) => {
-  return prisma.appointment.create({
-    data
-  })
+  return prisma.appointment.create({ data })
 }
 
 export const updateStatus = async (id, status) => {
