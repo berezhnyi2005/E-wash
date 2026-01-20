@@ -43,16 +43,19 @@
                   class="status-select"
                   :class="statusClass(a.status)"
                   :value="a.status"
+                  :disabled="a.status === 'DONE'"
                   @change="changeStatus(a.id, $event.target.value)"
                 >
                   <option value="PENDING">Pending</option>
                   <option value="APPROVED">Approved</option>
                   <option value="CANCELLED">Cancelled</option>
+                  <option value="DONE">Done</option>
                 </select>
               </td>
 
               <td>
                 <button
+                  v-if="a.status !== 'DONE'"
                   class="btn btn-danger"
                   @click="askDelete(a.id)"
                 >
@@ -122,7 +125,8 @@ const changeStatus = async (id, status) => {
 const statusClass = (status) => ({
   'status-pending': status === 'PENDING',
   'status-approved': status === 'APPROVED',
-  'status-cancelled': status === 'CANCELLED'
+  'status-cancelled': status === 'CANCELLED',
+  'status-done': status === 'DONE'
 })
 
 const askDelete = (id) => {
@@ -132,10 +136,12 @@ const askDelete = (id) => {
 
 const deleteConfirmed = async () => {
   try {
-    await fetch(
+    const res = await fetch(
       `http://localhost:5000/api/appointments/${appointmentToDelete.value}`,
       { method: 'DELETE' }
     )
+
+    if (!res.ok) throw new Error('Delete failed')
 
     toast.success('Rezervácia zmazaná')
     fetchAppointments()
@@ -145,6 +151,7 @@ const deleteConfirmed = async () => {
     appointmentToDelete.value = null
   }
 }
+
 const formatDate = (date) =>
   new Date(date).toLocaleDateString('sk-SK')
 
@@ -193,6 +200,7 @@ onMounted(fetchAppointments)
   display: flex;
   flex-direction: column;
 }
+
 .user-email {
   font-size: 12px;
   color: var(--color-text-muted);
@@ -223,6 +231,12 @@ onMounted(fetchAppointments)
   color: var(--red);
   background: rgba(196, 16, 16, 0.12);
   border-color: rgba(196, 16, 16, 0.35);
+}
+
+.status-done {
+  color: #5f6f63;
+  background: rgba(95, 111, 99, 0.18);
+  border-color: rgba(95, 111, 99, 0.45);
 }
 
 .empty-text {

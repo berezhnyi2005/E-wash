@@ -10,11 +10,11 @@ import {
 
 const router = express.Router()
 
-router.get("/", getAllAppointments)
-router.get("/my/:userId", getMyAppointments)
+router.get("/", getAllAppointments)        // admin
+router.get("/my", getMyAppointments)       // user
 router.get("/busy", getBusySlots)
 router.post("/", createAppointment)
-router.patch("/:id/status", updateStatus)
-router.delete("/:id", deleteAppointment)
+router.patch("/:id/status", updateStatus)  // admin
+router.delete("/:id", deleteAppointment)   // admin
 
 export default router

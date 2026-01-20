@@ -10,6 +10,16 @@ export const getAll = async () => {
   })
 }
 
+export const getById = async (id) => {
+  return prisma.appointment.findUnique({
+    where: { id: Number(id) },
+    include: {
+      user: true,
+      service: true
+    }
+  })
+}
+
 export const getByUserId = async (userId) => {
   return prisma.appointment.findMany({
     where: { userId: Number(userId) },

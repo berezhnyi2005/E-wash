@@ -8,7 +8,6 @@
           Vyberte službu, dátum a dostupný čas
         </p>
 
-        <!-- SLUŽBA -->
         <div class="form-field">
           <label class="form-field-label">Služba</label>
           <select v-model="selectedServiceId" class="form-field-input">
@@ -19,13 +18,16 @@
           </select>
         </div>
 
-        <!-- DÁTUM -->
         <div class="form-field">
           <label class="form-field-label">Dátum</label>
-          <input type="date" v-model="selectedDate" class="form-field-input" />
+          <input
+            type="date"
+            v-model="selectedDate"
+            class="form-field-input"
+            :min="today"
+          />
         </div>
 
-        <!-- SLOTY -->
         <div class="slots-section">
           <label class="form-field-label">Dostupné časy</label>
 
@@ -46,7 +48,6 @@
           </div>
         </div>
 
-        <!-- POZNÁMKA -->
         <div class="form-field">
           <label class="form-field-label">Poznámka</label>
           <textarea v-model="notes" class="form-field-textarea" />
@@ -85,6 +86,8 @@ const WORK_START = 9 * 60
 const WORK_END = 17 * 60
 const STEP = 30
 
+const today = new Date().toISOString().split("T")[0]
+
 onMounted(async () => {
   const res = await fetch("http://localhost:5000/api/services")
   const json = await res.json()
@@ -109,6 +112,13 @@ const selectedService = computed(() =>
   services.value.find(s => s.id === selectedServiceId.value)
 )
 
+const nowMinutes = computed(() => {
+  const now = new Date()
+  return now.getHours() * 60 + now.getMinutes()
+})
+
+const isToday = computed(() => selectedDate.value === today)
+
 const timeSlots = computed(() => {
   if (!selectedService.value || !selectedDate.value) return []
 
@@ -116,6 +126,8 @@ const timeSlots = computed(() => {
   const duration = selectedService.value.durationMin
 
   for (let start = WORK_START; start + duration <= WORK_END; start += STEP) {
+    if (isToday.value && start <= nowMinutes.value) continue
+
     const end = start + duration
 
     const overlap = busySlots.value.some(b => {
@@ -162,20 +174,45 @@ const format = (m) =>
 
 const submit = async () => {
   const user = JSON.parse(localStorage.getItem("user"))
-  if (!user?.id) return toast.error("Nie ste prihlásený")
+  if (!user?.id) {
+    toast.error("Nie ste prihlásený")
+    return
+  }
 
   const res = await fetch("http://localhost:5000/api/appointments", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+   
     body: JSON.stringify({
-      userId: user.id,
+         userId: user.id,
       serviceId: selectedServiceId.value,
       dateTime: toDate(selectedSlotStart.value).toISOString(),
       notes: notes.value
     })
   })
 
-  if (!res.ok) return toast.error("Termín je obsadený")
+  if (!res.ok) {
+    const json = await res.json()
+
+    const map = {
+      MISSING_FIELDS: "Vyplňte všetky povinné polia",
+      INVALID_DATE: "Neplatný dátum alebo čas",
+      PAST_DATE: "Nie je možné rezervovať v minulosti",
+      OUTSIDE_WORKING_HOURS: "Mimo pracovných hodín",
+      TIME_NOT_AVAILABLE: "Tento termín je už obsadený",
+      SERVICE_NOT_FOUND: "Služba neexistuje"
+    }
+
+    if (json?.errors?.length) {
+      json.errors.forEach(e =>
+        toast.error(map[e] || "Chyba pri rezervácii")
+      )
+    } else {
+      toast.error("Chyba pri rezervácii")
+    }
+
+    return
+  }
 
   toast.success("Rezervácia bola úspešná")
   router.push("/")
@@ -183,20 +220,6 @@ const submit = async () => {
 </script>
 
 <style scoped>
-.no-slots-text {
-  margin-top: 12px;
-  font-size: 14px;
-  color: var(--red);
-}
-</style>
-
-
-<style scoped>
-    .no-slots-text {
-  margin-top: 12px;
-  font-size: 14px;
-  color: var(--red);
-}
 .reservation-container {
   display: flex;
   justify-content: center;
@@ -246,5 +269,11 @@ const submit = async () => {
   display: flex;
   justify-content: space-between;
   margin-top: 28px;
+}
+
+.no-slots-text {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--red);
 }
 </style>
