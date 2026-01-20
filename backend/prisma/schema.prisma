@@ -6,29 +6,26 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
 enum Role {
   USER
   ADMIN
 }
 
-
-
 model User {
   id                Int       @id @default(autoincrement())
   name              String
   email             String    @unique
-  passwordHash      String?        // <---
+  passwordHash      String?
   role              Role      @default(USER)
   isVerified        Boolean   @default(false)
   verificationToken String?   @unique
   createdAt         DateTime  @default(now())
-  updatedAt         DateTime?      // <---
-  
+  updatedAt         DateTime?
+
   appointments      Appointment[]
   reviews           Review[]
 }
-
-
 
 model Service {
   id          Int       @id @default(autoincrement())
@@ -37,50 +34,43 @@ model Service {
   price       Float
   durationMin Int
   createdAt   DateTime  @default(now())
-  appointments Appointment[]
-}
 
-model ExtraService {
-  id          Int       @id @default(autoincrement())
-  name        String
-  description String?
-  price       Float
-  appointmentExtras AppointmentExtra[]
+  appointments Appointment[]
+  galleryItems GalleryItem[]
 }
 
 model Appointment {
-  id          Int       @id @default(autoincrement())
-  userId      Int
-  serviceId   Int
-  dateTime    DateTime
-  status      String    @default("pending")
-  notes       String?
-  createdAt   DateTime  @default(now())
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  serviceId Int
+  dateTime  DateTime
+  status    String
+  notes     String?
+  createdAt DateTime @default(now())
 
-  user        User      @relation(fields: [userId], references: [id])
-  service     Service   @relation(fields: [serviceId], references: [id])
-  extras      AppointmentExtra[]
-}
-
-model AppointmentExtra {
-  id              Int          @id @default(autoincrement())
-  appointmentId   Int
-  extraServiceId  Int
-
-  appointment     Appointment  @relation(fields: [appointmentId], references: [id])
-  extraService    ExtraService @relation(fields: [extraServiceId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  service Service @relation(fields: [serviceId], references: [id])
 }
 
 model Review {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  rating    Int
-  comment   String
-  createdAt DateTime @default(now())
-  adminReview String?  // odpoveď admina (null, ak ešte neodpovedal)
-  imgReview   String?  // URL / cesta k obrázku recenzie
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  rating      Int
+  comment     String
+  createdAt   DateTime @default(now())
+  adminReview String?
+  imgReview   String?
 
-  user      User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
+model GalleryItem {
+  id        Int      @id @default(autoincrement())
+  title     String
+  beforeUrl String
+  afterUrl  String
+  serviceId Int?
+  createdAt DateTime @default(now())
 
+  service Service? @relation(fields: [serviceId], references: [id])
+}
