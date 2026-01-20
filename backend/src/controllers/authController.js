@@ -2,12 +2,32 @@ import prisma from "../config/prisma.js"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 
+const handleValidationError = (res, errors) => {
+  return res.status(400).json({
+    status: "error",
+    errors
+  })
+}
+
 export const register = async (req, res) => {
   try {
+    const errors = []
     const { name, email, password } = req.body
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Missing fields" })
+    if (!name) errors.push("MISSING_NAME")
+    if (!email) errors.push("MISSING_EMAIL")
+    if (!password) errors.push("MISSING_PASSWORD")
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.push("INVALID_EMAIL")
+    }
+
+    if (password && password.length < 6) {
+      errors.push("PASSWORD_TOO_SHORT")
+    }
+
+    if (errors.length) {
+      return handleValidationError(res, errors)
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -15,7 +35,7 @@ export const register = async (req, res) => {
     })
 
     if (existingUser) {
-      return res.status(400).json({ message: "Email already exists" })
+      return handleValidationError(res, ["EMAIL_ALREADY_EXISTS"])
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
@@ -26,41 +46,57 @@ export const register = async (req, res) => {
         email,
         passwordHash,
         role: "USER",
-        isVerified: true,       
-        verificationToken: null 
+        isVerified: true,
+        verificationToken: null
       }
     })
 
     res.status(201).json({
-      message: "Registration successful",
+      status: "success",
       user: {
         id: user.id,
         name: user.name,
         email: user.email
       }
     })
-  } catch (err) {
-    console.error("Register error:", err)
-    res.status(500).json({ message: "Registration failed" })
+  } catch {
+    res.status(500).json({
+      status: "error",
+      message: "REGISTRATION_FAILED"
+    })
   }
 }
 
 export const login = async (req, res) => {
   try {
+    const errors = []
     const { email, password } = req.body
+
+    if (!email) errors.push("MISSING_EMAIL")
+    if (!password) errors.push("MISSING_PASSWORD")
+
+    if (errors.length) {
+      return handleValidationError(res, errors)
+    }
 
     const user = await prisma.user.findUnique({
       where: { email }
     })
 
     if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" })
+      return res.status(401).json({
+        status: "error",
+        errors: ["INVALID_CREDENTIALS"]
+      })
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash)
 
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" })
+      return res.status(401).json({
+        status: "error",
+        errors: ["INVALID_CREDENTIALS"]
+      })
     }
 
     const token = jwt.sign(
@@ -76,7 +112,7 @@ export const login = async (req, res) => {
     })
 
     res.json({
-      message: "Login successful",
+      status: "success",
       user: {
         id: user.id,
         name: user.name,
@@ -84,8 +120,10 @@ export const login = async (req, res) => {
         role: user.role
       }
     })
-  } catch (err) {
-    console.error("Login error:", err)
-    res.status(500).json({ message: "Login failed" })
+  } catch {
+    res.status(500).json({
+      status: "error",
+      message: "LOGIN_FAILED"
+    })
   }
 }

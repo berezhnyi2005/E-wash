@@ -28,7 +28,7 @@
           />
         </div>
 
-        <div class="slots-section">
+        <div class="form-field">
           <label class="form-field-label">Dostupné časy</label>
 
           <p v-if="noSlots" class="no-slots-text">
@@ -182,9 +182,8 @@ const submit = async () => {
   const res = await fetch("http://localhost:5000/api/appointments", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-   
     body: JSON.stringify({
-         userId: user.id,
+      userId: user.id,
       serviceId: selectedServiceId.value,
       dateTime: toDate(selectedSlotStart.value).toISOString(),
       notes: notes.value
@@ -193,7 +192,6 @@ const submit = async () => {
 
   if (!res.ok) {
     const json = await res.json()
-
     const map = {
       MISSING_FIELDS: "Vyplňte všetky povinné polia",
       INVALID_DATE: "Neplatný dátum alebo čas",
@@ -210,7 +208,6 @@ const submit = async () => {
     } else {
       toast.error("Chyba pri rezervácii")
     }
-
     return
   }
 
@@ -227,7 +224,8 @@ const submit = async () => {
 
 .reservation-card {
   width: 100%;
-  max-width: 540px;
+  max-width: 500px;
+  max-height: 800;
   background: var(--white-aktive);
   padding: 32px;
   border-radius: 16px;
@@ -245,10 +243,33 @@ const submit = async () => {
   margin-bottom: 24px;
 }
 
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-field-input {
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  padding: 0 0px;
+}
+
+.form-field-textarea {
+  min-height: 96px;
+  resize: vertical;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  padding: 10px 10px;
+}
+
 .slots-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .slot-btn {
@@ -268,12 +289,26 @@ const submit = async () => {
 .reservation-actions {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   margin-top: 28px;
 }
 
 .no-slots-text {
-  margin-top: 12px;
   font-size: 14px;
   color: var(--red);
+}
+
+@media (max-width: 640px) {
+  .reservation-card {
+    padding: 20px;
+  }
+
+  .reservation-actions {
+    flex-direction: column;
+  }
+
+  .reservation-actions .btn {
+    width: 100%;
+  }
 }
 </style>

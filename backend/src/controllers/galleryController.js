@@ -25,7 +25,17 @@ export const getAllGalleryItems = async (req, res) => {
 
 export const getGalleryItem = async (req, res) => {
   try {
-    const data = await service.getGalleryItemById(req.params.id)
+    const errors = []
+    const { id } = req.params
+
+    if (!id) errors.push("MISSING_GALLERY_ID")
+    if (id && isNaN(Number(id))) errors.push("INVALID_GALLERY_ID")
+
+    if (errors.length) {
+      throw { type: "VALIDATION_ERROR", errors }
+    }
+
+    const data = await service.getGalleryItemById(Number(id))
     res.json({ status: "success", data })
   } catch (err) {
     handleError(res, err)
@@ -34,16 +44,22 @@ export const getGalleryItem = async (req, res) => {
 
 export const createGalleryItem = async (req, res) => {
   try {
+    const errors = []
     const { title, serviceId } = req.body
 
     const before = req.files?.before?.[0]
     const after = req.files?.after?.[0]
 
-    if (!title || !before || !after) {
-      return res.status(400).json({
-        status: "error",
-        errors: ["MISSING_FIELDS"]
-      })
+    if (!title || !title.trim()) errors.push("MISSING_TITLE")
+    if (!before) errors.push("MISSING_BEFORE_IMAGE")
+    if (!after) errors.push("MISSING_AFTER_IMAGE")
+
+    if (serviceId && isNaN(Number(serviceId))) {
+      errors.push("INVALID_SERVICE_ID")
+    }
+
+    if (errors.length) {
+      throw { type: "VALIDATION_ERROR", errors }
     }
 
     const data = await service.createGalleryItem({
@@ -61,8 +77,27 @@ export const createGalleryItem = async (req, res) => {
 
 export const updateGalleryItem = async (req, res) => {
   try {
+    const errors = []
+    const { id } = req.params
+    const { title, serviceId } = req.body
+
+    if (!id) errors.push("MISSING_GALLERY_ID")
+    if (id && isNaN(Number(id))) errors.push("INVALID_GALLERY_ID")
+
+    if (title !== undefined && !title.trim()) {
+      errors.push("INVALID_TITLE")
+    }
+
+    if (serviceId !== undefined && serviceId !== null && isNaN(Number(serviceId))) {
+      errors.push("INVALID_SERVICE_ID")
+    }
+
+    if (errors.length) {
+      throw { type: "VALIDATION_ERROR", errors }
+    }
+
     const data = await service.updateGalleryItem(
-      req.params.id,
+      Number(id),
       req.body,
       req.files
     )
@@ -75,7 +110,17 @@ export const updateGalleryItem = async (req, res) => {
 
 export const deleteGalleryItem = async (req, res) => {
   try {
-    await service.deleteGalleryItem(req.params.id)
+    const errors = []
+    const { id } = req.params
+
+    if (!id) errors.push("MISSING_GALLERY_ID")
+    if (id && isNaN(Number(id))) errors.push("INVALID_GALLERY_ID")
+
+    if (errors.length) {
+      throw { type: "VALIDATION_ERROR", errors }
+    }
+
+    await service.deleteGalleryItem(Number(id))
     res.json({ status: "success" })
   } catch (err) {
     handleError(res, err)
