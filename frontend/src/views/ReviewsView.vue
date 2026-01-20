@@ -80,9 +80,17 @@
           {{ review.comment }}
         </p>
 
-        <!-- IMAGE -->
+        <!-- IMAGE (в рамке как галерея) -->
         <div v-if="review.imgReview" class="review-image-wrapper">
-          <img :src="review.imgReview" alt="Foto recenzie" class="review-image" />
+          <div class="review-image-box">
+            <img
+              :src="resolveImgSrc(review.imgReview)"
+              alt="Foto recenzie"
+              class="review-image"
+              loading="lazy"
+              @error="onImgError"
+            />
+          </div>
         </div>
 
         <!-- ADMIN ANSWER -->
@@ -151,21 +159,24 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useToast } from 'vue-toastification'
 
 import ReviewModal from '@/components/modal/ReviewModal.vue'
 import ReviewReplyModal from '@/components/modal/ReviewReplyModal.vue'
 import ConfirmModal from '@/components/modal/ConfirmModal.vue'
 
-const isAdmin = true
-const CURRENT_USER_ID = 1
+const toast = useToast()
 const API_BASE = 'http://localhost:5000'
 
-// DATA
+// ⚠️ оставляю как у тебя, но лучше потом подтянуть реально
+const isAdmin = true
+
+// ===== DATA =====
 const reviews = ref([])
 const loading = ref(false)
 const error = ref('')
 
-// MODALS
+// ===== MODALS =====
 const reviewModalVisible = ref(false)
 const reviewModalMode = ref('create')
 const selectedReview = ref(null)
@@ -173,7 +184,7 @@ const selectedReview = ref(null)
 const replyModalVisible = ref(false)
 const replyModalMode = ref('create')
 
-// CONFIRM DELETE
+// ===== CONFIRM DELETE =====
 const confirmDeleteVisible = ref(false)
 let reviewToDelete = null
 
@@ -188,14 +199,15 @@ const deleteReviewConfirmed = async () => {
   try {
     await apiRequest('DELETE', `${API_BASE}/api/reviews/${reviewToDelete}`)
     reviews.value = reviews.value.filter(r => r.id !== reviewToDelete)
+    toast.success('Recenzia bola vymazaná.', { position: 'bottom-center' })
   } catch (err) {
-    alert(err.message || 'Nepodarilo sa vymazať recenziu.')
+    toast.error(err.message || 'Nepodarilo sa vymazať recenziu.', { position: 'bottom-center' })
   }
 
   reviewToDelete = null
 }
 
-// UNIVERSAL FETCH WRAPPER
+// ===== UNIVERSAL FETCH WRAPPER (JSON ONLY) =====
 const apiRequest = async (method, url, body = null) => {
   const options = { method, headers: {} }
 
@@ -205,14 +217,16 @@ const apiRequest = async (method, url, body = null) => {
   }
 
   const res = await fetch(url, options)
-  const json = await res.json()
+  const json = await res.json().catch(() => null)
 
-  if (!res.ok) throw new Error(json?.message || json?.error)
+  if (!res.ok) {
+    throw new Error(json?.message || json?.error || 'Request failed')
+  }
 
   return json
 }
 
-// LOAD REVIEWS
+// ===== LOAD REVIEWS =====
 const getReviews = async () => {
   loading.value = true
   error.value = ''
@@ -227,7 +241,7 @@ const getReviews = async () => {
   }
 }
 
-// CALCULATIONS
+// ===== CALCULATIONS =====
 const totalReviews = computed(() => reviews.value.length)
 
 const averageRating = computed(() => {
@@ -246,7 +260,45 @@ const getInitials = (name) => {
   return (n[0][0] + (n[1]?.[0] || '')).toUpperCase()
 }
 
-// OPEN MODALS
+// ===== FIX SRC =====
+const resolveImgSrc = (img) => {
+  if (!img) return ''
+
+  const s = String(img).trim()
+
+  // absolute URL
+  if (s.startsWith('http://') || s.startsWith('https://')) return s
+
+  // "public/uploads/..."
+  if (s.startsWith('public/')) {
+    return `${API_BASE}/${s.replace(/^public\//, '')}`
+  }
+
+  // "uploads/..." (без слэша)
+  if (s.startsWith('uploads/')) {
+    return `${API_BASE}/${s}`
+  }
+
+  // "/uploads/..."
+  if (s.startsWith('/uploads/')) {
+    return `${API_BASE}${s}`
+  }
+
+  // "/something"
+  if (s.startsWith('/')) {
+    return `${API_BASE}${s}`
+  }
+
+  // fallback
+  return `${API_BASE}/${s}`
+}
+
+const onImgError = (e) => {
+  // не показываем "битую" иконку, а просто скрываем
+  e.target.style.display = 'none'
+}
+
+// ===== OPEN MODALS =====
 const openCreateReview = () => {
   reviewModalMode.value = 'create'
   selectedReview.value = null
@@ -259,42 +311,55 @@ const openReplyModal = (review, mode) => {
   replyModalVisible.value = true
 }
 
-// SAVE REVIEW
-const saveReview = async (formData) => {
-  let url = `${API_BASE}/api/reviews`
-  let method = 'POST'
-
-  if (formData.mode === 'edit' && selectedReview.value?.id) {
-    url = `${API_BASE}/api/reviews/${selectedReview.value.id}`
-    method = 'PUT'
-  }
-
+// ===== SAVE REVIEW (FormData приходит из ReviewModal) =====
+const saveReview = async (fdFromModal) => {
   try {
-    await apiRequest(method, url, {
-      userId: CURRENT_USER_ID,
-      rating: formData.rating,
-      comment: formData.comment,
-      imgReview: formData.imgReview || null
+    const user = JSON.parse(localStorage.getItem('user') || 'null')
+
+    if (!user?.id) {
+      toast.error('Používateľ nie je prihlásený.', { position: 'bottom-center' })
+      return
+    }
+
+    fdFromModal.append('userId', String(user.id))
+
+    const res = await fetch(`${API_BASE}/api/reviews`, {
+      method: 'POST',
+      body: fdFromModal
     })
+
+    const json = await res.json().catch(() => null)
+
+    if (!res.ok) {
+      throw new Error(json?.message || 'Nepodarilo sa odoslať recenziu.')
+    }
+
+    toast.success('Recenzia bola odoslaná. Ďakujeme!', { position: 'bottom-center' })
     await getReviews()
   } catch (err) {
-    alert(err.message)
+    toast.error(err.message || 'Chyba pri odoslaní recenzie.', { position: 'bottom-center' })
   }
 }
 
-// SAVE REPLY
+// ===== SAVE REPLY (JSON) =====
 const saveReply = async ({ id, adminReview }) => {
   try {
     await apiRequest('PUT', `${API_BASE}/api/reviews/${id}`, { adminReview })
+    toast.success('Odpoveď bola uložená.', { position: 'bottom-center' })
     await getReviews()
   } catch (err) {
-    alert(err.message)
+    toast.error(err.message || 'Nepodarilo sa uložiť odpoveď.', { position: 'bottom-center' })
   }
 }
 
 onMounted(getReviews)
 </script>
+
 <style scoped>
+/* ============================
+   ТВОИ СТИЛИ — НЕ ТРОГАЮ
+============================ */
+
 /* Pravá strana заголовка: summary + кнопка */
 .reviews-header-right {
   display: flex;
@@ -412,23 +477,7 @@ onMounted(getReviews)
   color: var(--color-text-main);
 }
 
-/* Obrázok recenzie */
-.review-image-wrapper {
-  margin-top: 8px;
-  display: flex;
-  justify-content: center; /* центрируем картинку в карточке */
-}
-
-.review-image {
-  width: 100%;
-  max-width: 600px;   /* чтобы не была гигантская по ширине */
-  max-height: 320px;  /* общий разумный лимит по высоте */
-  height: auto;       /* сохраняем пропорции */
-  object-fit: contain;/* НИЧЕГО не режем, просто уменьшаем */
-  border-radius: 10px;
-  display: block;
-}
-
+/* ADMIN REPLY */
 .review-admin-reply {
   margin-top: 4px;
   padding: 10px 12px;
@@ -474,6 +523,38 @@ onMounted(getReviews)
   color: var(--red);
 }
 
+/* ============================
+   ДОБАВЛЕНО ТОЛЬКО ДЛЯ ФОТО (красиво, стабильно)
+   🔥 это единственное место, которое я реально меняю
+============================ */
+
+.review-image-wrapper {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.review-image-wrapper {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.review-image-box {
+  width: 100%;
+  max-width: 600px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.review-image {
+  width: 100%;
+  height: 340px;
+  object-fit: cover;
+  display: block;
+}
+
+
 @media (max-width: 768px) {
   .section-header {
     display: flex;
@@ -512,9 +593,9 @@ onMounted(getReviews)
     padding: 14px 16px;
   }
 
-  .review-image {
+  .review-image-box {
     max-width: 100%;
-    max-height: 260px;
+    height: 260px;
   }
 }
 

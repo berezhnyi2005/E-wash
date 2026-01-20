@@ -14,9 +14,6 @@ const handleError = (res, err) => {
   })
 }
 
-/* ======================
-   GET ALL
-====================== */
 export const getAllGalleryItems = async (req, res) => {
   try {
     const data = await service.getAllGalleryItems()
@@ -26,9 +23,6 @@ export const getAllGalleryItems = async (req, res) => {
   }
 }
 
-/* ======================
-   GET ONE
-====================== */
 export const getGalleryItem = async (req, res) => {
   try {
     const data = await service.getGalleryItemById(req.params.id)
@@ -38,9 +32,6 @@ export const getGalleryItem = async (req, res) => {
   }
 }
 
-/* ======================
-   CREATE
-====================== */
 export const createGalleryItem = async (req, res) => {
   try {
     const { title, serviceId } = req.body
@@ -68,9 +59,6 @@ export const createGalleryItem = async (req, res) => {
   }
 }
 
-/* ======================
-   UPDATE ✅ FIXED
-====================== */
 export const updateGalleryItem = async (req, res) => {
   try {
     const data = await service.updateGalleryItem(
@@ -85,9 +73,6 @@ export const updateGalleryItem = async (req, res) => {
   }
 }
 
-/* ======================
-   DELETE
-====================== */
 export const deleteGalleryItem = async (req, res) => {
   try {
     await service.deleteGalleryItem(req.params.id)

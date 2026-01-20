@@ -15,7 +15,7 @@ router.post(
   controller.createGalleryItem
 )
 
-// UPDATE ✅ multer обязателен
+// UPDATE 
 router.put(
   "/:id",
   uploadGalleryImages,

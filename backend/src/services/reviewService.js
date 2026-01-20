@@ -21,7 +21,7 @@ export const updateReview = async (id, data) => {
   return await repo.update(id, data)
 }
 
-export const deleteReview= async (id) => {
+export const deleteReview = async (id) => {
   const existing = await repo.getById(id)
   if (!existing) throw new Error('Review not found')
 

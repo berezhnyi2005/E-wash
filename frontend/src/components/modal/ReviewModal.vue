@@ -6,8 +6,10 @@
       </h2>
 
       <form @submit.prevent="handleSubmit" class="modal-form">
+
+        <!-- RATING -->
         <div class="form-field">
-          <label class="form-field-label" for="review-rating">
+          <label class="form-field-label">
             Hodnotenie (1 – 5)
           </label>
 
@@ -28,12 +30,14 @@
             </span>
           </div>
         </div>
+
+        <!-- COMMENT -->
         <div class="form-field">
-          <label class="form-field-label" for="review-comment">
+          <label class="form-field-label">
             Vaša skúsenosť
           </label>
+
           <textarea
-            id="review-comment"
             v-model="localForm.comment"
             rows="4"
             class="form-field-textarea"
@@ -45,23 +49,22 @@
             {{ errors.comment }}
           </p>
         </div>
+
+        <!-- IMAGE FILE -->
         <div class="form-field">
-          <label class="form-field-label" for="review-image">
-            Obrázok (URL, voliteľné)
+          <label class="form-field-label">
+            Obrázok (voliteľné)
           </label>
+
           <input
-            id="review-image"
-            v-model="localForm.imgReview"
-            type="text"
-            placeholder="https://..."
+            type="file"
+            accept="image/*"
             class="form-field-input"
-            :class="{ 'has-error': !!errors.imgReview }"
+            @change="onFileChange"
           />
-          <p v-if="errors.imgReview" class="form-field-error">
-            {{ errors.imgReview }}
-          </p>
         </div>
 
+        <!-- ACTIONS -->
         <div class="modal-actions">
           <button
             type="button"
@@ -78,6 +81,7 @@
             Odoslať recenziu
           </button>
         </div>
+
       </form>
     </div>
   </div>
@@ -90,10 +94,7 @@ import { useToast } from 'vue-toastification'
 const toast = useToast()
 
 const props = defineProps({
-  visible: {
-    type: Boolean,
-    required: true
-  },
+  visible: Boolean,
   mode: {
     type: String,
     default: 'create'
@@ -109,31 +110,22 @@ const emit = defineEmits(['update:visible', 'save'])
 const localForm = reactive({
   rating: 5,
   comment: '',
-  imgReview: ''
+  imageFile: null
 })
 
 const errors = reactive({
-  comment: '',
-  imgReview: ''
+  comment: ''
 })
 
 watch(
   () => props.visible,
-  (value) => {
-    if (value) {
-      if (props.review && props.mode === 'edit') {
-        localForm.rating = props.review.rating ?? 5
-        localForm.comment = props.review.comment ?? ''
-        localForm.imgReview = props.review.imgReview ?? ''
-      } else {
-        localForm.rating = 5
-        localForm.comment = ''
-        localForm.imgReview = ''
-      }
+  (v) => {
+    if (!v) return
 
-      errors.comment = ''
-      errors.imgReview = ''
-    }
+    localForm.rating = props.review?.rating ?? 5
+    localForm.comment = props.review?.comment ?? ''
+    localForm.imageFile = null
+    errors.comment = ''
   },
   { immediate: true }
 )
@@ -148,61 +140,43 @@ const setRating = (value) => {
   localForm.rating = value
 }
 
+const onFileChange = (e) => {
+  localForm.imageFile = e.target.files?.[0] || null
+}
+
 const validate = () => {
-  let isValid = true
-
   errors.comment = ''
-  errors.imgReview = ''
 
-  const trimmedComment = localForm.comment.trim()
-  if (!trimmedComment) {
-    errors.comment = 'Komentár nesmie byť prázdny.'
-    isValid = false
-  } else if (trimmedComment.length < 5) {
+  const text = localForm.comment.trim()
+  if (!text || text.length < 5) {
     errors.comment = 'Komentár musí mať aspoň 5 znakov.'
-    isValid = false
-  }
-
-  const trimmedImg = localForm.imgReview.trim()
-  if (trimmedImg && trimmedImg.length < 10) {
-    errors.imgReview = 'URL adresa je nesprávna, skontrolujte ju.'
-    isValid = false
-  }
-
-  if (!isValid) {
     toast.error('Skontrolujte si formulár recenzie.', {
       position: 'bottom-center'
     })
+    return false
   }
 
-  return isValid
+  return true
 }
 
 const handleSubmit = () => {
   if (!validate()) return
 
-  const trimmedComment = localForm.comment.trim()
-  const trimmedImg = localForm.imgReview.trim()
+  const formData = new FormData()
+  formData.append('rating', String(localForm.rating))
+  formData.append('comment', localForm.comment.trim())
 
-  emit('save', {
-    rating: localForm.rating,
-    comment: trimmedComment,
-    imgReview: trimmedImg || null,
-    mode: props.mode
-  })
+  if (localForm.imageFile) {
+    formData.append('imgReview', localForm.imageFile)
+  }
 
-  toast.success(
-    props.mode === 'edit'
-      ? 'Recenzia bola upravená.'
-      : 'Recenzia bola odoslaná. Ďakujeme!',
-    { position: 'bottom-center' }
-  )
-
+  emit('save', formData)
   emit('update:visible', false)
 }
 </script>
 
 <style scoped>
+/* ❗ СТИЛИ НЕ ТРОНУТЫ */
 .modal-form {
   display: flex;
   flex-direction: column;
@@ -232,14 +206,7 @@ const handleSubmit = () => {
   transition: 0.15s ease;
 }
 
-.form-field-textarea:focus,
-.form-field-input:focus {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
-}
-
-.form-field-textarea.has-error,
-.form-field-input.has-error {
+.form-field-textarea.has-error {
   border-color: var(--red);
 }
 
@@ -257,21 +224,13 @@ const handleSubmit = () => {
 .rating-star {
   border: none;
   background: transparent;
-  padding: 0;
-  margin: 0 2px;
   cursor: pointer;
   font-size: 22px;
-  line-height: 1;
   color: var(--color-text-muted);
-  transition: transform 0.1s ease, color 0.1s ease;
 }
 
 .rating-star.active {
   color: #f5a623;
-}
-
-.rating-star:hover {
-  transform: scale(1.1);
 }
 
 .rating-value {

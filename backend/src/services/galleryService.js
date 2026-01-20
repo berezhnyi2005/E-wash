@@ -55,9 +55,6 @@ export const createGalleryItem = async ({
   })
 }
 
-/* ======================
-   UPDATE ✅ ПРАВИЛЬНЫЙ
-====================== */
 export const updateGalleryItem = async (id, data, files) => {
   const existing = await repo.getById(id)
 
@@ -70,7 +67,6 @@ export const updateGalleryItem = async (id, data, files) => {
 
   const updateData = {}
 
-  /* title */
   if (typeof data.title === "string") {
     const t = data.title.trim()
     if (!t) {
@@ -82,7 +78,6 @@ export const updateGalleryItem = async (id, data, files) => {
     updateData.title = t
   }
 
-  /* serviceId (multipart-safe) */
   if ("serviceId" in data) {
     if (
       data.serviceId === "" ||
@@ -114,7 +109,6 @@ export const updateGalleryItem = async (id, data, files) => {
     }
   }
 
-  /* files — если не пришли, старые остаются */
   if (files?.before?.[0]) {
     updateData.beforeUrl = `/uploads/gallery/${files.before[0].filename}`
   }
