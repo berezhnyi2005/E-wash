@@ -62,24 +62,23 @@ export const createGalleryItem = async (req, res) => {
       afterUrl: `/uploads/gallery/${after.filename}`
     })
 
-    res.status(201).json({
-      status: "success",
-      data
-    })
+    res.status(201).json({ status: "success", data })
   } catch (err) {
     handleError(res, err)
   }
 }
 
 /* ======================
-   UPDATE
+   UPDATE ✅ FIXED
 ====================== */
 export const updateGalleryItem = async (req, res) => {
   try {
     const data = await service.updateGalleryItem(
       req.params.id,
-      req.body
+      req.body,
+      req.files
     )
+
     res.json({ status: "success", data })
   } catch (err) {
     handleError(res, err)

@@ -2,6 +2,7 @@
   <section class="page-section">
     <div class="page-container">
 
+      <!-- HEADER -->
       <div class="section-header">
         <div>
           <h1 class="section-header-title">Galéria výsledkov</h1>
@@ -13,12 +14,13 @@
         <button
           v-if="isAdmin"
           class="btn btn-primary"
-          @click="createVisible = true"
+          @click="openCreate"
         >
           Pridať prácu
         </button>
       </div>
 
+      <!-- STATES -->
       <div v-if="loading" class="text-center text-sm text-[var(--color-text-muted)]">
         Načítavam galériu...
       </div>
@@ -32,15 +34,23 @@
 
       <!-- ACTIVE ITEM -->
       <div v-else class="gallery-main">
-
-        <h2 class="gallery-title">
-          {{ activeItem.title }}
-        </h2>
+        <h2 class="gallery-title">{{ activeItem.title }}</h2>
 
         <p v-if="activeItem.service" class="gallery-service">
           Služba: {{ activeItem.service.title }}
         </p>
 
+        <!-- ADMIN ACTIONS -->
+        <div v-if="isAdmin" class="gallery-actions">
+          <button class="btn btn-ghost" @click="openEdit">
+            Upraviť
+          </button>
+          <button class="btn btn-danger" @click="deleteVisible = true">
+            Odstrániť
+          </button>
+        </div>
+
+        <!-- IMAGES -->
         <div class="gallery-images">
           <div class="image-box">
             <img :src="apiUrl + activeItem.beforeUrl" />
@@ -53,7 +63,7 @@
           </div>
         </div>
 
-        <!-- NAVIGATION -->
+        <!-- NAV -->
         <div class="gallery-nav">
           <button @click="prev" :disabled="activeIndex === 0">‹</button>
 
@@ -81,26 +91,39 @@
     </div>
   </section>
 
-  <GalleryCreateModal
-    v-model:visible="createVisible"
+  <!-- UNIFIED MODAL -->
+  <GalleryWorkModal
+    v-model:visible="modalVisible"
+    :item="modalItem"
     @saved="fetchGallery"
+  />
+
+  <!-- CONFIRM DELETE -->
+  <ConfirmModal
+    v-model:visible="deleteVisible"
+    title="Odstrániť prácu"
+    text="Naozaj chcete odstrániť túto prácu z galérie?"
+    @confirm="deleteItem"
   />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue"
-import GalleryCreateModal from "@/components/modal/GalleryCreateModal.vue"
+import GalleryWorkModal from "@/components/modal/GalleryWorkModal.vue"
+import ConfirmModal from "@/components/modal/ConfirmModal.vue"
 
 const apiUrl = "http://localhost:5000"
 
 const items = ref([])
 const loading = ref(true)
-const createVisible = ref(false)
 const activeIndex = ref(0)
+
+const modalVisible = ref(false)
+const modalItem = ref(null)
+const deleteVisible = ref(false)
 
 const user = JSON.parse(localStorage.getItem("user"))
 const isAdmin = computed(() => user?.role === "ADMIN")
-
 const activeItem = computed(() => items.value[activeIndex.value])
 
 const fetchGallery = async () => {
@@ -113,6 +136,24 @@ const fetchGallery = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const openCreate = () => {
+  modalItem.value = null
+  modalVisible.value = true
+}
+
+const openEdit = () => {
+  modalItem.value = activeItem.value
+  modalVisible.value = true
+}
+
+const deleteItem = async () => {
+  await fetch(`${apiUrl}/api/gallery/${activeItem.value.id}`, {
+    method: "DELETE"
+  })
+  deleteVisible.value = false
+  fetchGallery()
 }
 
 const prev = () => {
@@ -140,7 +181,14 @@ onMounted(fetchGallery)
 .gallery-service {
   font-size: 13px;
   color: var(--color-text-muted);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+.gallery-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .gallery-images {
@@ -157,7 +205,7 @@ onMounted(fetchGallery)
 
 .image-box img {
   width: 100%;
-  height: 320px;
+  height: 340px;
   object-fit: cover;
 }
 
@@ -168,6 +216,7 @@ onMounted(fetchGallery)
   font-size: 11px;
   color: white;
   border-radius: 999px;
+  font-weight: 600;
 }
 
 .before {
@@ -183,22 +232,8 @@ onMounted(fetchGallery)
 .gallery-nav {
   margin-top: 20px;
   display: flex;
-  align-items: center;
   justify-content: center;
   gap: 12px;
-}
-
-.gallery-nav button {
-  font-size: 24px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-.gallery-nav button:disabled {
-  opacity: 0.3;
-  cursor: default;
 }
 
 .thumbnails {

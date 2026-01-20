@@ -55,7 +55,10 @@ export const createGalleryItem = async ({
   })
 }
 
-export const updateGalleryItem = async (id, data) => {
+/* ======================
+   UPDATE ✅ ПРАВИЛЬНЫЙ
+====================== */
+export const updateGalleryItem = async (id, data, files) => {
   const existing = await repo.getById(id)
 
   if (!existing) {
@@ -65,7 +68,62 @@ export const updateGalleryItem = async (id, data) => {
     }
   }
 
-  return repo.update(id, data)
+  const updateData = {}
+
+  /* title */
+  if (typeof data.title === "string") {
+    const t = data.title.trim()
+    if (!t) {
+      throw {
+        type: "VALIDATION_ERROR",
+        errors: ["TITLE_REQUIRED"]
+      }
+    }
+    updateData.title = t
+  }
+
+  /* serviceId (multipart-safe) */
+  if ("serviceId" in data) {
+    if (
+      data.serviceId === "" ||
+      data.serviceId === "null" ||
+      data.serviceId === null
+    ) {
+      updateData.serviceId = null
+    } else {
+      const sid = Number(data.serviceId)
+      if (Number.isNaN(sid)) {
+        throw {
+          type: "VALIDATION_ERROR",
+          errors: ["SERVICE_ID_INVALID"]
+        }
+      }
+
+      const service = await prisma.service.findUnique({
+        where: { id: sid }
+      })
+
+      if (!service) {
+        throw {
+          type: "VALIDATION_ERROR",
+          errors: ["SERVICE_NOT_FOUND"]
+        }
+      }
+
+      updateData.serviceId = sid
+    }
+  }
+
+  /* files — если не пришли, старые остаются */
+  if (files?.before?.[0]) {
+    updateData.beforeUrl = `/uploads/gallery/${files.before[0].filename}`
+  }
+
+  if (files?.after?.[0]) {
+    updateData.afterUrl = `/uploads/gallery/${files.after[0].filename}`
+  }
+
+  return repo.update(id, updateData)
 }
 
 export const deleteGalleryItem = async (id) => {
