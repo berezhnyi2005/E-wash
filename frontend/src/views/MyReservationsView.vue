@@ -66,8 +66,12 @@ const fetchReservations = async () => {
     loading.value = true
     const user = JSON.parse(localStorage.getItem('user'))
 
+    if (!user?.id) {
+      throw new Error('User not logged in')
+    }
+
     const res = await fetch(
-      `http://localhost:5000/api/appointments/my/${user.id}`
+      `http://localhost:5000/api/appointments/my?userId=${user.id}`
     )
 
     if (!res.ok) {
@@ -146,13 +150,18 @@ const formatTimeBlock = (iso, duration) => {
   color: var(--blue-dark);
 }
 
-.status-confirmed {
+.status-approved {
   background: var(--green);
   color: white;
 }
 
-.status-canceled {
+.status-cancelled {
   background: var(--red-aktive);
   color: white;
+}
+
+.status-done {
+  background: #e5e7eb;
+  color: #374151;
 }
 </style>

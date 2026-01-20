@@ -5,10 +5,11 @@ import cookieParser from "cookie-parser"
 
 import authRoutes from "./routes/authRoutes.js"
 import serviceRoutes from "./routes/serviceRoutes.js"
-import extraServiceRoutes from "./routes/extraServiceRoutes.js"
 import reviewRoutes from "./routes/reviewRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
 import appointmentRoutes from "./routes/appointmentRoutes.js"
+import galleryRoutes from "./routes/galleryRoutes.js"
+
 
 dotenv.config()
 
@@ -24,10 +25,13 @@ app.use(cors({
 
 app.use("/api/auth", authRoutes)
 app.use("/api/services", serviceRoutes)
-app.use("/api/extraServices", extraServiceRoutes)
 app.use("/api/reviews", reviewRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/appointments", appointmentRoutes)
+app.use("/api/gallery", galleryRoutes)
+app.use("/uploads", express.static("uploads"))
+
+
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK" })
