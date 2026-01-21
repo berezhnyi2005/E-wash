@@ -7,7 +7,6 @@
 
       <form @submit.prevent="handleRegister" class="form">
 
-        <!-- Name -->
         <label class="label">Full Name</label>
         <input
           v-model="name"
@@ -17,7 +16,6 @@
           required
         />
 
-        <!-- Email -->
         <label class="label">Email Address</label>
         <input
           v-model="email"
@@ -27,7 +25,6 @@
           required
         />
 
-        <!-- Password -->
         <label class="label">Password</label>
         <div class="password-wrapper">
           <input
@@ -85,7 +82,6 @@ async function handleRegister() {
 </script>
 
 <style scoped>
-/* Page */
 .register-page {
   min-height: 100vh;
   display: flex;
@@ -95,7 +91,6 @@ async function handleRegister() {
   padding: 20px;
 }
 
-/* Card */
 .register-card {
   width: 100%;
   max-width: 420px;
@@ -106,7 +101,6 @@ async function handleRegister() {
   text-align: center;
 }
 
-/* Headings */
 .title {
   font-size: 28px;
   font-weight: 700;
@@ -120,7 +114,6 @@ async function handleRegister() {
   margin-bottom: 30px;
 }
 
-/* Labels */
 .label {
   text-align: left;
   font-size: 14px;
@@ -130,7 +123,6 @@ async function handleRegister() {
   margin-bottom: 5px;
 }
 
-/* Inputs */
 .input {
   width: 100%;
   padding: 12px 14px;
@@ -146,7 +138,6 @@ async function handleRegister() {
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
-/* Password */
 .password-wrapper {
   position: relative;
 }
@@ -160,7 +151,6 @@ async function handleRegister() {
   color: #6b7280;
 }
 
-/* Button */
 .btn {
   width: 100%;
   margin-top: 22px;
@@ -179,7 +169,6 @@ async function handleRegister() {
   background: #1d4ed8;
 }
 
-/* Login link */
 .login {
   margin-top: 20px;
   font-size: 14px;

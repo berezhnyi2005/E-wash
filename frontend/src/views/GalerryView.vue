@@ -2,7 +2,6 @@
   <section class="page-section">
     <div class="page-container">
 
-      <!-- HEADER -->
       <div class="section-header">
         <div>
           <h1 class="section-header-title">Galéria výsledkov</h1>
@@ -20,7 +19,6 @@
         </button>
       </div>
 
-      <!-- STATES -->
       <div v-if="loading" class="text-center text-sm text-[var(--color-text-muted)]">
         Načítavam galériu...
       </div>
@@ -32,73 +30,69 @@
         Zatiaľ nie sú k dispozícii žiadne fotografie.
       </div>
 
-      <!-- ACTIVE ITEM -->
-      <div v-else class="gallery-main">
-        <h2 class="gallery-title">{{ activeItem.title }}</h2>
+      <div v-else class="gallery-frame">
+        <div class="gallery-main">
+          <h2 class="gallery-title">{{ activeItem.title }}</h2>
 
-        <p v-if="activeItem.service" class="gallery-service">
-          Služba: {{ activeItem.service.title }}
-        </p>
+          <p v-if="activeItem.service" class="gallery-service">
+            Služba: {{ activeItem.service.title }}
+          </p>
 
-        <!-- ADMIN ACTIONS -->
-        <div v-if="isAdmin" class="gallery-actions">
-          <button class="btn btn-ghost" @click="openEdit">
-            Upraviť
-          </button>
-          <button class="btn btn-danger" @click="deleteVisible = true">
-            Odstrániť
-          </button>
-        </div>
-
-        <!-- IMAGES -->
-        <div class="gallery-images">
-          <div class="image-box">
-            <img :src="apiUrl + activeItem.beforeUrl" />
-            <span class="badge before">Pred</span>
+          <div v-if="isAdmin" class="gallery-actions">
+            <button class="btn btn-ghost" @click="openEdit">
+              Upraviť
+            </button>
+            <button class="btn btn-danger" @click="deleteVisible = true">
+              Odstrániť
+            </button>
           </div>
 
-          <div class="image-box">
-            <img :src="apiUrl + activeItem.afterUrl" />
-            <span class="badge after">Po</span>
-          </div>
-        </div>
+          <div class="gallery-images">
+            <div class="image-box">
+              <img :src="apiUrl + activeItem.beforeUrl" />
+              <span class="badge before">Pred</span>
+            </div>
 
-        <!-- NAV -->
-        <div class="gallery-nav">
-          <button @click="prev" :disabled="activeIndex === 0">‹</button>
-
-          <div class="thumbnails">
-            <div
-              v-for="(item, i) in items"
-              :key="item.id"
-              class="thumb"
-              :class="{ active: i === activeIndex }"
-              @click="activeIndex = i"
-            >
-              <img :src="apiUrl + item.afterUrl" />
+            <div class="image-box">
+              <img :src="apiUrl + activeItem.afterUrl" />
+              <span class="badge after">Po</span>
             </div>
           </div>
 
-          <button
-            @click="next"
-            :disabled="activeIndex === items.length - 1"
-          >
-            ›
-          </button>
+          <div class="gallery-nav">
+            <button @click="prev" :disabled="activeIndex === 0">‹</button>
+
+            <div class="thumbnails">
+              <div
+                v-for="(item, i) in items"
+                :key="item.id"
+                class="thumb"
+                :class="{ active: i === activeIndex }"
+                @click="activeIndex = i"
+              >
+                <img :src="apiUrl + item.afterUrl" />
+              </div>
+            </div>
+
+            <button
+              @click="next"
+              :disabled="activeIndex === items.length - 1"
+            >
+              ›
+            </button>
+          </div>
         </div>
       </div>
 
     </div>
   </section>
 
-  <!-- UNIFIED MODAL -->
   <GalleryWorkModal
     v-model:visible="modalVisible"
     :item="modalItem"
     @saved="fetchGallery"
   />
 
-  <!-- CONFIRM DELETE -->
   <ConfirmModal
     v-model:visible="deleteVisible"
     title="Odstrániť prácu"
@@ -168,14 +162,23 @@ onMounted(fetchGallery)
 </script>
 
 <style scoped>
+/* РАМКА ВОКРУГ ГАЛЕРЕИ */
+.gallery-frame {
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  background: var(--white-aktive);
+}
+
+/* ОСНОВА */
 .gallery-main {
-  margin-top: 24px;
   text-align: center;
 }
 
 .gallery-title {
   font-size: 20px;
   font-weight: 600;
+  color: var(--color-text-main);
 }
 
 .gallery-service {
@@ -188,9 +191,10 @@ onMounted(fetchGallery)
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
+/* КАРТИНКИ */
 .gallery-images {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -201,6 +205,7 @@ onMounted(fetchGallery)
   position: relative;
   border-radius: 16px;
   overflow: hidden;
+  border: 1px solid var(--color-border);
 }
 
 .image-box img {
@@ -209,10 +214,11 @@ onMounted(fetchGallery)
   object-fit: cover;
 }
 
+/* BADGES */
 .badge {
   position: absolute;
   top: 10px;
-  padding: 4px 10px;
+  padding: 10px 15px;
   font-size: 11px;
   color: white;
   border-radius: 999px;
@@ -225,15 +231,25 @@ onMounted(fetchGallery)
 }
 
 .after {
-  right: 10px;
+  left: 10px;
   background: var(--green);
 }
 
+/* NAV */
 .gallery-nav {
   margin-top: 20px;
   display: flex;
   justify-content: center;
   gap: 12px;
+  align-items: center;
+}
+
+.gallery-nav button {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  border-radius: 999px;
+  padding: 4px 10px;
+  cursor: pointer;
 }
 
 .thumbnails {
@@ -260,5 +276,27 @@ onMounted(fetchGallery)
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .gallery-images {
+    grid-template-columns: 1fr;
+  }
+
+  .image-box img {
+    height: 260px;
+  }
+
+  .gallery-frame {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .thumbnails {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
 }
 </style>

@@ -23,7 +23,7 @@
 
         <RouterLink
           to="/services"
-          class="btn btn-ghost-light"
+          class="btn btn-primary"
         >
           Naše služby
         </RouterLink>
@@ -32,27 +32,21 @@
   </section>
 </template>
 
-
 <style scoped>
-/* =========================
-   HERO SECTION
-========================= */
-
 .home-hero {
   position: relative;
-  min-height: calc(100vh - 72px); /* если есть header */
+  min-height: calc(100vh - 72px);
   display: flex;
   align-items: center;
   padding: 0 40px;
 
-  /* 👉 поменяй картинку здесь */
-  background-image: url("../assets/fon/fon.jpg");
+  /* ФОТКА ЗДЕСЬ */
+  background-image: url("../assets/fon/fona.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
 
-/* затемнение */
 .hero-overlay {
   position: absolute;
   inset: 0;
@@ -64,12 +58,11 @@
   );
 }
 
-/* контент поверх */
 .hero-content {
   position: relative;
   max-width: 620px;
-  color: white;
   z-index: 1;
+  color: white;
 }
 
 .hero-title {
@@ -82,31 +75,17 @@
 .hero-subtitle {
   font-size: 16px;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.85);
   margin-bottom: 28px;
+  color: rgba(255, 255, 255, 0.85);
 }
 
-/* кнопки */
 .hero-actions {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
-/* светлая ghost-кнопка */
-.btn-ghost-light {
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: transparent;
-  color: white;
-}
-
-.btn-ghost-light:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
+/* RESPONSIVE */
 
 @media (max-width: 768px) {
   .home-hero {

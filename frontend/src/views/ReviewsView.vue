@@ -43,11 +43,8 @@
       Zatiaľ nemáme žiadne recenzie. Buďte prvý, kto ohodnotí naše služby.
     </div>
 
-    <!-- LIST OF REVIEWS -->
     <div v-else class="reviews-list">
       <div v-for="review in reviews" :key="review.id" class="review-card">
-
-        <!-- HEADER -->
         <header class="review-card-header">
           <div class="review-user">
             <div class="review-avatar">
@@ -75,12 +72,10 @@
           </div>
         </header>
 
-        <!-- COMMENT -->
         <p class="review-comment">
           {{ review.comment }}
         </p>
 
-        <!-- IMAGE (в рамке как галерея) -->
         <div v-if="review.imgReview" class="review-image-wrapper">
           <div class="review-image-box">
             <img
@@ -93,15 +88,12 @@
           </div>
         </div>
 
-        <!-- ADMIN ANSWER -->
         <div v-if="review.adminReview" class="review-admin-reply">
           <div class="review-admin-label">Odpoveď E-Wash</div>
           <p class="review-admin-text">{{ review.adminReview }}</p>
         </div>
 
-        <!-- ADMIN ACTIONS -->
         <div v-if="isAdmin" class="review-admin-actions">
-
           <button
             v-if="!review.adminReview"
             type="button"
@@ -127,13 +119,11 @@
           >
             Vymazať recenziu
           </button>
-
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modals -->
   <ReviewModal
     v-if="reviewModalVisible"
     v-model:visible="reviewModalVisible"
@@ -143,15 +133,15 @@
   />
 
   <ReviewReplyModal
-    v-if="replyModalVisible"
+    v-if="isAdmin && replyModalVisible"
     v-model:visible="replyModalVisible"
     :mode="replyModalMode"
     :review="selectedReview"
     @save="saveReply"
   />
 
-  <!-- Confirm Delete Modal -->
   <ConfirmModal
+    v-if="isAdmin"
     v-model:visible="confirmDeleteVisible"
     @confirm="deleteReviewConfirmed"
   />
@@ -168,15 +158,13 @@ import ConfirmModal from '@/components/modal/ConfirmModal.vue'
 const toast = useToast()
 const API_BASE = 'http://localhost:5000'
 
-// ⚠️ оставляю как у тебя, но лучше потом подтянуть реально
-const isAdmin = true
+const user = JSON.parse(localStorage.getItem('user') || 'null')
+const isAdmin = computed(() => user?.role === 'ADMIN')
 
-// ===== DATA =====
 const reviews = ref([])
 const loading = ref(false)
 const error = ref('')
 
-// ===== MODALS =====
 const reviewModalVisible = ref(false)
 const reviewModalMode = ref('create')
 const selectedReview = ref(null)
@@ -184,11 +172,11 @@ const selectedReview = ref(null)
 const replyModalVisible = ref(false)
 const replyModalMode = ref('create')
 
-// ===== CONFIRM DELETE =====
 const confirmDeleteVisible = ref(false)
 let reviewToDelete = null
 
 const askDeleteReview = (id) => {
+  if (!isAdmin.value) return
   reviewToDelete = id
   confirmDeleteVisible.value = true
 }
@@ -207,7 +195,6 @@ const deleteReviewConfirmed = async () => {
   reviewToDelete = null
 }
 
-// ===== UNIVERSAL FETCH WRAPPER (JSON ONLY) =====
 const apiRequest = async (method, url, body = null) => {
   const options = { method, headers: {} }
 
@@ -226,7 +213,6 @@ const apiRequest = async (method, url, body = null) => {
   return json
 }
 
-// ===== LOAD REVIEWS =====
 const getReviews = async () => {
   loading.value = true
   error.value = ''
@@ -241,7 +227,6 @@ const getReviews = async () => {
   }
 }
 
-// ===== CALCULATIONS =====
 const totalReviews = computed(() => reviews.value.length)
 
 const averageRating = computed(() => {
@@ -260,45 +245,23 @@ const getInitials = (name) => {
   return (n[0][0] + (n[1]?.[0] || '')).toUpperCase()
 }
 
-// ===== FIX SRC =====
 const resolveImgSrc = (img) => {
   if (!img) return ''
-
   const s = String(img).trim()
 
-  // absolute URL
   if (s.startsWith('http://') || s.startsWith('https://')) return s
+  if (s.startsWith('public/')) return `${API_BASE}/${s.replace(/^public\//, '')}`
+  if (s.startsWith('uploads/')) return `${API_BASE}/${s}`
+  if (s.startsWith('/uploads/')) return `${API_BASE}${s}`
+  if (s.startsWith('/')) return `${API_BASE}${s}`
 
-  // "public/uploads/..."
-  if (s.startsWith('public/')) {
-    return `${API_BASE}/${s.replace(/^public\//, '')}`
-  }
-
-  // "uploads/..." (без слэша)
-  if (s.startsWith('uploads/')) {
-    return `${API_BASE}/${s}`
-  }
-
-  // "/uploads/..."
-  if (s.startsWith('/uploads/')) {
-    return `${API_BASE}${s}`
-  }
-
-  // "/something"
-  if (s.startsWith('/')) {
-    return `${API_BASE}${s}`
-  }
-
-  // fallback
   return `${API_BASE}/${s}`
 }
 
 const onImgError = (e) => {
-  // не показываем "битую" иконку, а просто скрываем
   e.target.style.display = 'none'
 }
 
-// ===== OPEN MODALS =====
 const openCreateReview = () => {
   reviewModalMode.value = 'create'
   selectedReview.value = null
@@ -306,16 +269,14 @@ const openCreateReview = () => {
 }
 
 const openReplyModal = (review, mode) => {
+  if (!isAdmin.value) return
   replyModalMode.value = mode
   selectedReview.value = { ...review }
   replyModalVisible.value = true
 }
 
-// ===== SAVE REVIEW (FormData приходит из ReviewModal) =====
 const saveReview = async (fdFromModal) => {
   try {
-    const user = JSON.parse(localStorage.getItem('user') || 'null')
-
     if (!user?.id) {
       toast.error('Používateľ nie je prihlásený.', { position: 'bottom-center' })
       return
@@ -341,8 +302,9 @@ const saveReview = async (fdFromModal) => {
   }
 }
 
-// ===== SAVE REPLY (JSON) =====
 const saveReply = async ({ id, adminReview }) => {
+  if (!isAdmin.value) return
+
   try {
     await apiRequest('PUT', `${API_BASE}/api/reviews/${id}`, { adminReview })
     toast.success('Odpoveď bola uložená.', { position: 'bottom-center' })
@@ -356,18 +318,12 @@ onMounted(getReviews)
 </script>
 
 <style scoped>
-/* ============================
-   ТВОИ СТИЛИ — НЕ ТРОГАЮ
-============================ */
-
-/* Pravá strana заголовка: summary + кнопка */
 .reviews-header-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-/* Блок со средней оценкой */
 .reviews-summary {
   display: flex;
   flex-direction: column;
@@ -375,7 +331,7 @@ onMounted(getReviews)
   gap: 4px;
   padding: 10px 14px;
   border-radius: 12px;
-  background-color: var(--white-aktive);
+  background: var(--white-aktive);
   border: 1px solid var(--color-border);
 }
 
@@ -401,32 +357,29 @@ onMounted(getReviews)
   color: var(--color-text-muted);
 }
 
-/* Список отзывов */
 .reviews-list {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-/* Карточка отзыва */
 .review-card {
   padding: 18px 20px;
-  border-radius: 14px;
-  background-color: var(--white-aktive);
+  border-radius: 16px;
+  background: var(--white-aktive);
   border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* Хедер карточки: пользователь + рейтинг */
 .review-card-header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 12px;
 }
 
-/* Блок пользователя */
 .review-user {
   display: flex;
   align-items: center;
@@ -437,7 +390,7 @@ onMounted(getReviews)
   width: 38px;
   height: 38px;
   border-radius: 999px;
-  background-color: var(--grey-light);
+  background: var(--grey-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -477,12 +430,33 @@ onMounted(getReviews)
   color: var(--color-text-main);
 }
 
-/* ADMIN REPLY */
+.review-image-wrapper {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.review-image-box {
+  width: 100%;
+  max-width: 600px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--white-aktive);
+}
+
+.review-image {
+  width: 100%;
+  height: 340px;
+  object-fit: cover;
+  display: block;
+}
+
 .review-admin-reply {
-  margin-top: 4px;
+  margin-top: 6px;
   padding: 10px 12px;
-  border-radius: 10px;
-  background-color: var(--white-aktive);
+  border-radius: 12px;
+  background: var(--white);
   border: 1px solid var(--blue-light);
 }
 
@@ -523,57 +497,11 @@ onMounted(getReviews)
   color: var(--red);
 }
 
-/* ============================
-   ДОБАВЛЕНО ТОЛЬКО ДЛЯ ФОТО (красиво, стабильно)
-   🔥 это единственное место, которое я реально меняю
-============================ */
-
-.review-image-wrapper {
-  margin-top: 8px;
-  display: flex;
-  justify-content: center;
-}
-
-.review-image-wrapper {
-  margin-top: 8px;
-  display: flex;
-  justify-content: center;
-}
-
-.review-image-box {
-  width: 100%;
-  max-width: 600px;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.review-image {
-  width: 100%;
-  height: 340px;
-  object-fit: cover;
-  display: block;
-}
-
-
 @media (max-width: 768px) {
-  .section-header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .section-header-title {
-    font-size: 22px;
-  }
-
-  .section-header-description {
-    font-size: 14px;
-  }
-
   .reviews-header-right {
     width: 100%;
     justify-content: space-between;
+    gap: 10px;
   }
 
   .reviews-summary {
@@ -593,8 +521,7 @@ onMounted(getReviews)
     padding: 14px 16px;
   }
 
-  .review-image-box {
-    max-width: 100%;
+  .review-image {
     height: 260px;
   }
 }
@@ -608,6 +535,7 @@ onMounted(getReviews)
 
   .reviews-summary {
     width: 100%;
+    align-items: flex-start;
   }
 
   .reviews-header-right .btn {
