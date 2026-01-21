@@ -9,10 +9,19 @@
             Prehľad všetkých rezervácií a správa ich stavu
           </p>
         </div>
+
+        <button class="btn btn-ghost" @click="showDone = !showDone">
+          {{ showDone ? 'Skryť dokončené' : 'Zobraziť dokončené' }}
+        </button>
       </div>
 
       <div class="admin-card">
-        <table v-if="appointments.length" class="admin-table">
+        <p v-if="!filteredAppointments.length" class="empty-text">
+          Žiadne aktívne rezervácie.
+        </p>
+
+        <!-- DESKTOP -->
+        <table v-else class="admin-table desktop-only">
           <thead>
             <tr>
               <th>Služba</th>
@@ -25,7 +34,7 @@
           </thead>
 
           <tbody>
-            <tr v-for="a in appointments" :key="a.id">
+            <tr v-for="a in filteredAppointments" :key="a.id">
               <td>{{ a.service.title }}</td>
 
               <td>
@@ -43,8 +52,7 @@
                   class="status-select"
                   :class="statusClass(a.status)"
                   :value="a.status"
-                  :disabled="a.status === 'DONE'"
-                  @change="changeStatus(a.id, $event.target.value)"
+                  @change="onStatusChange(a, $event.target.value)"
                 >
                   <option value="PENDING">Pending</option>
                   <option value="APPROVED">Approved</option>
@@ -55,8 +63,8 @@
 
               <td>
                 <button
-                  v-if="a.status !== 'DONE'"
                   class="btn btn-danger"
+                  :disabled="a.status === 'DONE'"
                   @click="askDelete(a.id)"
                 >
                   Zmazať
@@ -66,9 +74,52 @@
           </tbody>
         </table>
 
-        <p v-else class="empty-text">
-          Žiadne rezervácie neboli nájdené.
-        </p>
+        <!-- MOBILE -->
+        <div class="mobile-only">
+          <div
+            v-for="a in filteredAppointments"
+            :key="a.id"
+            class="reservation-card"
+          >
+            <div class="card-row">
+              <strong>{{ a.service.title }}</strong>
+              <span>{{ formatDate(a.dateTime) }}</span>
+            </div>
+
+            <div class="card-row muted">
+              {{ formatTimeRange(a) }}
+            </div>
+
+            <div class="card-row">
+              <div class="user-cell">
+                <strong>{{ a.user.name }}</strong>
+                <span class="user-email">{{ a.user.email }}</span>
+              </div>
+            </div>
+
+            <div class="card-row actions-row">
+              <select
+                class="status-select"
+                :class="statusClass(a.status)"
+                :value="a.status"
+                @change="onStatusChange(a, $event.target.value)"
+              >
+                <option value="PENDING">Pending</option>
+                <option value="APPROVED">Approved</option>
+                <option value="CANCELLED">Cancelled</option>
+                <option value="DONE">Done</option>
+              </select>
+
+              <button
+                class="btn btn-danger"
+                :disabled="a.status === 'DONE'"
+                @click="askDelete(a.id)"
+              >
+                Zmazať
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <ConfirmModal
@@ -76,58 +127,77 @@
         @confirm="deleteConfirmed"
       />
 
+      <ConfirmModal
+        v-model:visible="confirmDoneVisible"
+        @confirm="confirmSetDone"
+      />
+
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import ConfirmModal from '@/components/modal/ConfirmModal.vue'
 
 const toast = useToast()
 
 const appointments = ref([])
+const showDone = ref(false)
+
 const confirmDeleteVisible = ref(false)
+const confirmDoneVisible = ref(false)
+
 const appointmentToDelete = ref(null)
+const appointmentToDone = ref(null)
 
 const fetchAppointments = async () => {
-  try {
-    const res = await fetch('http://localhost:5000/api/appointments')
-    const json = await res.json()
-    if (!res.ok) throw new Error(json.message)
-    appointments.value = json.data
-  } catch (err) {
-    toast.error(err.message)
+  const res = await fetch('http://localhost:5000/api/appointments')
+  const json = await res.json()
+  appointments.value = json.data || []
+}
+
+onMounted(fetchAppointments)
+
+const filteredAppointments = computed(() =>
+  appointments.value.filter(a =>
+    showDone.value ? true : a.status !== 'DONE'
+  )
+)
+
+const onStatusChange = (a, newStatus) => {
+  if (newStatus === 'DONE') {
+    appointmentToDone.value = a
+    confirmDoneVisible.value = true
+  } else {
+    updateStatus(a.id, newStatus)
   }
 }
 
-const changeStatus = async (id, status) => {
-  try {
-    const res = await fetch(
-      `http://localhost:5000/api/appointments/${id}/status`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      }
-    )
-
-    if (!res.ok) throw new Error('Status update failed')
-
-    toast.success('Status aktualizovaný')
-    fetchAppointments()
-  } catch (err) {
-    toast.error(err.message)
-  }
+const confirmSetDone = async () => {
+  await updateStatus(appointmentToDone.value.id, 'DONE')
+  appointmentToDone.value = null
 }
 
-const statusClass = (status) => ({
-  'status-pending': status === 'PENDING',
-  'status-approved': status === 'APPROVED',
-  'status-cancelled': status === 'CANCELLED',
-  'status-done': status === 'DONE'
-})
+const updateStatus = async (id, status) => {
+  const res = await fetch(
+    `http://localhost:5000/api/appointments/${id}/status`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    }
+  )
+
+  if (!res.ok) {
+    toast.error('Nepodarilo sa zmeniť stav')
+    return
+  }
+
+  toast.success('Status aktualizovaný')
+  fetchAppointments()
+}
 
 const askDelete = (id) => {
   appointmentToDelete.value = id
@@ -135,39 +205,39 @@ const askDelete = (id) => {
 }
 
 const deleteConfirmed = async () => {
-  try {
-    const res = await fetch(
-      `http://localhost:5000/api/appointments/${appointmentToDelete.value}`,
-      { method: 'DELETE' }
-    )
+  const res = await fetch(
+    `http://localhost:5000/api/appointments/${appointmentToDelete.value}`,
+    { method: 'DELETE' }
+  )
 
-    if (!res.ok) throw new Error('Delete failed')
-
-    toast.success('Rezervácia zmazaná')
-    fetchAppointments()
-  } catch (err) {
-    toast.error(err.message)
-  } finally {
-    appointmentToDelete.value = null
+  if (!res.ok) {
+    toast.error('Nepodarilo sa zmazať rezerváciu')
+    return
   }
+
+  toast.success('Rezervácia zmazaná')
+  appointmentToDelete.value = null
+  fetchAppointments()
 }
 
-const formatDate = (date) =>
-  new Date(date).toLocaleDateString('sk-SK')
+const formatDate = (d) =>
+  new Date(d).toLocaleDateString('sk-SK')
 
 const formatTimeRange = (a) => {
   const start = new Date(a.dateTime)
   const end = new Date(start.getTime() + a.service.durationMin * 60000)
-
   const f = (d) =>
-    `${String(d.getHours()).padStart(2, '0')}:${String(
-      d.getMinutes()
-    ).padStart(2, '0')}`
-
+    `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
   return `${f(start)} – ${f(end)}`
 }
 
-onMounted(fetchAppointments)
+const statusClass = (s) => {
+  if (s === 'PENDING') return 'status-pending'
+  if (s === 'APPROVED') return 'status-approved'
+  if (s === 'CANCELLED') return 'status-cancelled'
+  if (s === 'DONE') return 'status-done'
+  return ''
+}
 </script>
 
 <style scoped>
@@ -184,13 +254,7 @@ onMounted(fetchAppointments)
   font-size: 14px;
 }
 
-.admin-table th {
-  text-align: left;
-  padding: 12px;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text-muted);
-}
-
+.admin-table th,
 .admin-table td {
   padding: 12px;
   border-bottom: 1px solid var(--color-border);
@@ -208,11 +272,11 @@ onMounted(fetchAppointments)
 
 .status-select {
   border-radius: 999px;
-  padding: 4px 12px;
+  padding: 6px 12px;
   font-size: 13px;
   font-weight: 600;
   border: 1px solid transparent;
-  cursor: pointer;
+  background: transparent;
 }
 
 .status-pending {
@@ -237,6 +301,38 @@ onMounted(fetchAppointments)
   color: #5f6f63;
   background: rgba(95, 111, 99, 0.18);
   border-color: rgba(95, 111, 99, 0.45);
+}
+
+.reservation-card {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.desktop-only { display: table; }
+.mobile-only { display: none; }
+
+@media (max-width: 768px) {
+  .desktop-only { display: none; }
+  .mobile-only {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
 }
 
 .empty-text {

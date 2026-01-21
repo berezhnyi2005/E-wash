@@ -6,6 +6,7 @@
         <span>PREMIUM WASH</span>
       </RouterLink>
 
+      <!-- BURGER -->
       <button
         class="header-menu-btn"
         type="button"
@@ -16,6 +17,7 @@
         <span class="header-menu-line"></span>
       </button>
 
+      <!-- NAV -->
       <nav
         class="header-nav"
         :class="{ 'mobile-open': isMobileMenuOpen }"
@@ -32,6 +34,7 @@
         </RouterLink>
       </nav>
 
+      <!-- AVATAR -->
       <div class="header-auth">
         <div class="avatar-wrapper">
           <div class="header-avatar" @click="toggleDropdown">
@@ -60,7 +63,7 @@ const router = useRouter()
 const isMobileMenuOpen = ref(false)
 const showDropdown = ref(false)
 
-const user = JSON.parse(localStorage.getItem("user"))
+const user = JSON.parse(localStorage.getItem("user") || "null")
 const role = user?.role || "USER"
 
 const baseNavLinks = [
@@ -74,7 +77,6 @@ const navLinks = computed(() => {
   if (role === 'ADMIN') {
     return [...baseNavLinks, { name: 'Admin panel', path: '/admin-panel' }]
   }
-
   return [...baseNavLinks, { name: 'Moje rezervácie', path: '/my-reservations' }]
 })
 
@@ -99,9 +101,8 @@ const logout = () => {
 }
 </script>
 
-
 <style scoped>
-
+/* ===== ROOT ===== */
 .header-root {
   position: fixed;
   top: 0;
@@ -124,6 +125,7 @@ const logout = () => {
   gap: 12px;
 }
 
+/* ===== LOGO ===== */
 .header-logo {
   font-size: 17px;
   font-weight: 700;
@@ -131,8 +133,10 @@ const logout = () => {
   border-radius: 12px;
   background-color: var(--blue);
   color: #fff;
+  text-decoration: none;
 }
 
+/* ===== BURGER ===== */
 .header-menu-btn {
   display: inline-flex;
   flex-direction: column;
@@ -143,33 +147,58 @@ const logout = () => {
 }
 
 .header-menu-line {
-  width: 20px;
+  width: 22px;
   height: 2px;
-  background: #111827;
+  background: var(--color-text-main);
 }
 
+/* ===== NAV ===== */
 .header-nav {
   display: none;
 }
 
+.nav-link {
+  font-size: 15px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--blue);
+  font-weight: 600;
+
+}
+
+/* ===== DESKTOP ===== */
 @media (min-width: 768px) {
+  .header-menu-btn {
+    display: none;
+  }
+
   .header-nav {
     display: flex;
     gap: 28px;
   }
 }
 
-.nav-link {
-  font-size: 15px;
-  color: var(--color-text-muted);
+/* ===== MOBILE MENU ===== */
+@media (max-width: 767px) {
+  .header-nav.mobile-open {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    width: 100%;
+    background: var(--white-aktive);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 16px 24px;
+    gap: 14px;
+    z-index: 40;
+  }
 }
 
-.nav-link.active {
-  color: var(--blue);
-  font-weight: 600;
-  border-bottom: 2px solid var(--blue);
-}
-
+/* ===== AVATAR ===== */
 .avatar-wrapper {
   position: relative;
 }
@@ -198,6 +227,7 @@ const logout = () => {
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.12);
   overflow: hidden;
+  min-width: 160px;
 }
 
 .dropdown-item {

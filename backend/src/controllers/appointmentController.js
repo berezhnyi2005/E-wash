@@ -1,7 +1,5 @@
 import * as service from "../services/appointmentService.js"
 
-
-
 const handleError = (res, err) => {
   if (err?.type === "VALIDATION_ERROR") {
     return res.status(400).json({
@@ -16,7 +14,9 @@ const handleError = (res, err) => {
   })
 }
 
-
+/* ======================
+   GET ALL
+====================== */
 export const getAllAppointments = async (req, res) => {
   try {
     const data = await service.getAllAppointments()
@@ -26,6 +26,9 @@ export const getAllAppointments = async (req, res) => {
   }
 }
 
+/* ======================
+   GET MY
+====================== */
 export const getMyAppointments = async (req, res) => {
   try {
     const errors = []
@@ -48,6 +51,9 @@ export const getMyAppointments = async (req, res) => {
   }
 }
 
+/* ======================
+   BUSY SLOTS
+====================== */
 export const getBusySlots = async (req, res) => {
   try {
     const errors = []
@@ -70,7 +76,9 @@ export const getBusySlots = async (req, res) => {
   }
 }
 
-
+/* ======================
+   CREATE
+====================== */
 export const createAppointment = async (req, res) => {
   try {
     const errors = []
@@ -107,8 +115,9 @@ export const createAppointment = async (req, res) => {
   }
 }
 
-
-
+/* ======================
+   UPDATE STATUS  ✅ FIXED
+====================== */
 export const updateStatus = async (req, res) => {
   try {
     const errors = []
@@ -119,9 +128,8 @@ export const updateStatus = async (req, res) => {
     if (id && isNaN(Number(id))) errors.push("INVALID_APPOINTMENT_ID")
 
     if (!status) errors.push("MISSING_STATUS")
-    if (status && !["PENDING", "CONFIRMED", "CANCELLED"].includes(status)) {
-      errors.push("INVALID_STATUS")
-    }
+    // ❗ УБРАЛИ ПРОВЕРКУ СПИСКА СТАТУСОВ
+    // ❗ Вся бизнес-валидация теперь ТОЛЬКО в service
 
     if (errors.length) {
       throw {
@@ -137,7 +145,9 @@ export const updateStatus = async (req, res) => {
   }
 }
 
-
+/* ======================
+   DELETE
+====================== */
 export const deleteAppointment = async (req, res) => {
   try {
     const errors = []

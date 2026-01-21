@@ -141,7 +141,7 @@ const handleSubmit = () => {
 .form-field-textarea {
   width: 100%;
   min-height: 120px;
-  padding: 10px 12px;
+  padding: 10px 0px;
   border-radius: 8px;
   border: 1px solid var(--color-border);
   font-size: 14px;

@@ -7,7 +7,9 @@
             {{ isEditMode ? 'Upraviť službu' : 'Vytvoriť novú službu' }}
           </h2>
           <p class="modal-subtitle">
-            {{ isEditMode ? 'Upravte údaje existujúcej služby.' : 'Vyplňte údaje pre novú službu.' }}
+            {{ isEditMode
+              ? 'Upravte údaje existujúcej služby.'
+              : 'Vyplňte údaje pre novú službu.' }}
           </p>
         </div>
 
@@ -17,7 +19,8 @@
       </div>
 
       <form @submit.prevent="handleSubmit" class="modal-form">
-       
+
+        <!-- TITLE -->
         <div class="form-field">
           <label class="form-field-label" for="service-title">
             Názov služby
@@ -34,6 +37,7 @@
           </p>
         </div>
 
+        <!-- DESCRIPTION -->
         <div class="form-field">
           <label class="form-field-label" for="service-description">
             Popis
@@ -51,6 +55,7 @@
           </p>
         </div>
 
+        <!-- PRICE + DURATION -->
         <div class="form-row-two">
           <div class="form-field">
             <label class="form-field-label" for="service-price">
@@ -61,7 +66,6 @@
               v-model.number="localForm.price"
               type="number"
               min="0"
-              step=""
               class="form-field-input"
               :class="{ 'has-error': !!errors.price }"
             />
@@ -89,6 +93,7 @@
           </div>
         </div>
 
+        <!-- ACTIONS -->
         <div class="modal-actions">
           <button
             type="button"
@@ -105,6 +110,7 @@
             {{ isEditMode ? 'Uložiť zmeny' : 'Vytvoriť službu' }}
           </button>
         </div>
+
       </form>
     </div>
   </div>
@@ -117,18 +123,9 @@ import { useToast } from 'vue-toastification'
 const toast = useToast()
 
 const props = defineProps({
-  visible: {
-    type: Boolean,
-    required: true
-  },
-  mode: {
-    type: String,
-    default: 'create' // 'create' | 'edit'
-  },
-  service: {
-    type: Object,
-    default: null
-  }
+  visible: Boolean,
+  mode: { type: String, default: 'create' },
+  service: { type: Object, default: null }
 })
 
 const emit = defineEmits(['update:visible', 'save'])
@@ -152,15 +149,11 @@ const isEditMode = computed(() => props.mode === 'edit')
 
 watch(
   () => props.visible,
-  (value) => {
-    if (!value) return
+  (v) => {
+    if (!v) return
 
-    if (props.service && props.service.id && isEditMode.value) {
-      localForm.id = props.service.id
-      localForm.title = props.service.title ?? ''
-      localForm.description = props.service.description ?? ''
-      localForm.price = props.service.price ?? 0
-      localForm.durationMin = props.service.durationMin ?? 30
+    if (props.service && isEditMode.value) {
+      Object.assign(localForm, props.service)
     } else {
       localForm.id = null
       localForm.title = ''
@@ -169,197 +162,138 @@ watch(
       localForm.durationMin = 30
     }
 
-    errors.title = ''
-    errors.description = ''
-    errors.price = ''
-    errors.durationMin = ''
+    Object.keys(errors).forEach(k => errors[k] = '')
   },
   { immediate: true }
 )
 
-const close = () => {
-  emit('update:visible', false)
-}
+const close = () => emit('update:visible', false)
 
 const validate = () => {
-  let isValid = true
+  let ok = true
+  Object.keys(errors).forEach(k => errors[k] = '')
 
-  errors.title = ''
-  errors.description = ''
-  errors.price = ''
-  errors.durationMin = ''
-
-  const title = String(localForm.title).trim()
-  const description = String(localForm.description).trim()
-
-  if (!title) {
-    errors.title = 'Názov nesmie byť prázdny.'
-    isValid = false
-  } else if (title.length < 3) {
-    errors.title = 'Názov musí mať aspoň 3 znaky.'
-    isValid = false
+  if (!localForm.title.trim()) {
+    errors.title = 'Názov je povinný.'
+    ok = false
   }
 
-  if (!description) {
-    errors.description = 'Popis nesmie byť prázdny.'
-    isValid = false
-  } else if (description.length < 5) {
-    errors.description = 'Popis musí mať aspoň 5 znakov.'
-    isValid = false
+  if (!localForm.description.trim()) {
+    errors.description = 'Popis je povinný.'
+    ok = false
   }
 
-  if (localForm.price == null || isNaN(localForm.price)) {
-    errors.price = 'Cena musí byť číslo.'
-    isValid = false
-  } else if (localForm.price <= 0) {
+  if (localForm.price <= 0) {
     errors.price = 'Cena musí byť väčšia ako 0.'
-    isValid = false
+    ok = false
   }
 
-  if (localForm.durationMin == null || isNaN(localForm.durationMin)) {
-    errors.durationMin = 'Trvanie musí byť číslo.'
-    isValid = false
-  } else if (localForm.durationMin <= 0) {
+  if (localForm.durationMin <= 0) {
     errors.durationMin = 'Trvanie musí byť väčšie ako 0.'
-    isValid = false
+    ok = false
   }
 
-  if (!isValid) {
-    toast.error('Skontrolujte si údaje služby.', {
-      position: 'bottom-center'
-    })
+  if (!ok) {
+    toast.error('Skontrolujte formulár.', { position: 'bottom-center' })
   }
 
-  return isValid
+  return ok
 }
-
 
 const handleSubmit = () => {
   if (!validate()) return
 
-  const trimmedTitle = localForm.title.trim()
-  const trimmedDescription = localForm.description.trim()
-
   emit('save', {
-    id: localForm.id,
-    title: trimmedTitle,
-    description: trimmedDescription,
-    price: localForm.price,
-    durationMin: localForm.durationMin,
+    ...localForm,
     mode: isEditMode.value ? 'edit' : 'create'
   })
 
   toast.success(
-    isEditMode.value ? 'Služba bola upravená.' : 'Služba bola vytvorená.',
+    isEditMode.value ? 'Služba upravená.' : 'Služba vytvorená.',
     { position: 'bottom-center' }
   )
 
-  emit('update:visible', false)
+  close()
 }
 </script>
 
 <style scoped>
+/* ===== LAYOUT ===== */
+.modal-panel {
+  width: 100%;
+  max-width: 520px;
+  padding: 22px 24px;
+}
+
+/* ===== HEADER ===== */
 .modal-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .modal-subtitle {
-  margin: 4px 0 0;
   font-size: 13px;
   color: var(--color-text-muted);
 }
 
 .modal-chip {
+  font-size: 11px;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background-color: var(--grey-light);
-  color: var(--color-text-main);
-  white-space: nowrap;
+  background: var(--grey-light);
 }
 
+/* ===== FORM ===== */
 .modal-form {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-field-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-main);
-}
-
 .form-field-input,
 .form-field-textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  font-size: 14px;
-  outline: none;
-  transition: 0.15s ease;
+  padding: 12px 0px;
+  border-radius: 10px;
 }
 
-.form-field-input:focus,
-.form-field-textarea:focus {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
-}
-
-.form-field-input.has-error,
-.form-field-textarea.has-error {
-  border-color: var(--red);
-}
-
-.form-field-error {
-  font-size: 12px;
-  color: var(--red);
-}
-
+/* ===== ROW ===== */
 .form-row-two {
   display: flex;
-  column-gap: 50px;      
-  margin-top: 16px;      
-  margin-bottom: 16px;   
+  gap: 24px;
 }
 
-.form-row-two .form-field {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px; 
-}
-
-@media (max-width: 480px) {
-  .form-row-two {
-    flex-direction: column;
-    row-gap: 16px;
-    column-gap: 0;
-  }
-}
-
+/* ===== ACTIONS ===== */
 .modal-actions {
-  margin-top: 8px;
+  margin-top: 12px;
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
 }
 
+/* ===== MOBILE ===== */
 @media (max-width: 480px) {
+  .modal-panel {
+    padding: 18px 16px;
+  }
+
+  .modal-header {
+    flex-direction: column;
+    gap: 6px;
+  }
+
   .form-row-two {
     flex-direction: column;
+    gap: 14px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions .btn {
+    width: 100%;
   }
 }
 </style>

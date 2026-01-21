@@ -262,7 +262,7 @@ const submit = async () => {
   resize: vertical;
   border-radius: 12px;
   border: 1px solid var(--color-border);
-  padding: 10px 10px;
+  padding: 10px 0px;
 }
 
 .slots-grid {

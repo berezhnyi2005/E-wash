@@ -21,31 +21,70 @@
           Nemáte žiadne rezervácie.
         </div>
 
-        <table v-else class="reservations-table">
-          <thead>
-            <tr>
-              <th>Služba</th>
-              <th>Dátum</th>
-              <th>Čas</th>
-              <th>Stav</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="r in reservations" :key="r.id">
-              <td>{{ r.service.title }}</td>
-              <td>{{ formatDate(r.dateTime) }}</td>
-              <td>{{ formatTimeBlock(r.dateTime, r.service.durationMin) }}</td>
-              <td>
-                <span
-                  class="status"
-                  :class="`status-${r.status.toLowerCase()}`"
-                >
-                  {{ r.status }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- DESKTOP / TABLET -->
+        <div v-else class="table-wrapper">
+          <table class="reservations-table">
+            <thead>
+              <tr>
+                <th>Služba</th>
+                <th>Dátum</th>
+                <th>Čas</th>
+                <th>Stav</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="r in reservations" :key="r.id">
+                <td>{{ r.service.title }}</td>
+                <td>{{ formatDate(r.dateTime) }}</td>
+                <td>{{ formatTimeBlock(r.dateTime, r.service.durationMin) }}</td>
+                <td>
+                  <span
+                    class="status"
+                    :class="`status-${r.status.toLowerCase()}`"
+                  >
+                    {{ r.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- MOBILE -->
+        <div class="reservations-mobile" v-if="!loading && reservations.length">
+          <div
+            v-for="r in reservations"
+            :key="r.id + '-mobile'"
+            class="reservation-card"
+          >
+            <div class="reservation-row">
+              <span class="label">Služba</span>
+              <span class="value">{{ r.service.title }}</span>
+            </div>
+
+            <div class="reservation-row">
+              <span class="label">Dátum</span>
+              <span class="value">{{ formatDate(r.dateTime) }}</span>
+            </div>
+
+            <div class="reservation-row">
+              <span class="label">Čas</span>
+              <span class="value">
+                {{ formatTimeBlock(r.dateTime, r.service.durationMin) }}
+              </span>
+            </div>
+
+            <div class="reservation-row">
+              <span class="label">Stav</span>
+              <span
+                class="status"
+                :class="`status-${r.status.toLowerCase()}`"
+              >
+                {{ r.status }}
+              </span>
+            </div>
+          </div>
+        </div>
 
       </div>
 
@@ -91,7 +130,6 @@ const fetchReservations = async () => {
 
 onMounted(fetchReservations)
 
-/* helpers */
 const formatDate = (iso) =>
   new Date(iso).toLocaleDateString('sk-SK')
 
@@ -119,10 +157,17 @@ const formatTimeBlock = (iso, duration) => {
   color: var(--color-text-muted);
 }
 
+/* ===== TABLE ===== */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
 .reservations-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  min-width: 520px;
 }
 
 .reservations-table th {
@@ -130,19 +175,22 @@ const formatTimeBlock = (iso, duration) => {
   padding-bottom: 8px;
   color: var(--color-text-muted);
   border-bottom: 1px solid var(--color-border);
+  font-weight: 500;
 }
 
 .reservations-table td {
-  padding: 12px 0;
+  padding: 14px 0;
   border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-main);
 }
 
-/* STATUS */
+/* ===== STATUS ===== */
 .status {
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
+  display: inline-block;
 }
 
 .status-pending {
@@ -163,5 +211,63 @@ const formatTimeBlock = (iso, duration) => {
 .status-done {
   background: #e5e7eb;
   color: #374151;
+}
+
+.reservations-mobile {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reservation-card {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: var(--white-aktive);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reservation-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reservation-row .label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.reservation-row .value {
+  font-size: 14px;
+  color: var(--color-text-main);
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .reservations-table {
+    display: none;
+  }
+
+  .reservations-mobile {
+    display: flex;
+  }
+
+  .card {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .reservation-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reservation-row .value {
+    text-align: left;
+  }
 }
 </style>

@@ -162,7 +162,6 @@ onMounted(fetchGallery)
 </script>
 
 <style scoped>
-/* РАМКА ВОКРУГ ГАЛЕРЕИ */
 .gallery-frame {
   border: 1px solid var(--color-border);
   border-radius: 16px;
@@ -170,7 +169,6 @@ onMounted(fetchGallery)
   background: var(--white-aktive);
 }
 
-/* ОСНОВА */
 .gallery-main {
   text-align: center;
 }
@@ -194,7 +192,6 @@ onMounted(fetchGallery)
   margin-bottom: 16px;
 }
 
-/* КАРТИНКИ */
 .gallery-images {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -214,7 +211,6 @@ onMounted(fetchGallery)
   object-fit: cover;
 }
 
-/* BADGES */
 .badge {
   position: absolute;
   top: 10px;
@@ -235,7 +231,6 @@ onMounted(fetchGallery)
   background: var(--green);
 }
 
-/* NAV */
 .gallery-nav {
   margin-top: 20px;
   display: flex;
@@ -278,7 +273,6 @@ onMounted(fetchGallery)
   object-fit: cover;
 }
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .gallery-images {
     grid-template-columns: 1fr;

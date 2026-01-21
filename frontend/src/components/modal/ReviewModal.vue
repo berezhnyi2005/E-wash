@@ -43,7 +43,7 @@
 
           <textarea
             v-model="localForm.comment"
-            rows="4"
+            rows="3"
             class="form-field-textarea"
             :class="{ 'has-error': errors.comment }"
             placeholder="Opíšte, ako ste boli spokojný s umývaním..."
@@ -206,7 +206,7 @@ const handleSubmit = () => {
 .form-field-textarea,
 .form-field-input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px 0px;
   border-radius: 8px;
   border: 1px solid var(--color-border);
   font-size: 14px;
@@ -250,5 +250,57 @@ const handleSubmit = () => {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+/* ===== MOBILE UX FIX ===== */
+@media (max-width: 480px) {
+  .modal-panel {
+    padding: 20px 20px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .modal-form {
+    gap: 16px;
+  }
+
+  .rating-wrapper {
+    justify-content: space-between;
+  }
+
+  .rating-star {
+    font-size: 28px;
+    padding: 6px;
+  }
+
+  .rating-value {
+    font-size: 14px;
+    min-width: 52px;
+    text-align: right;
+  }
+
+  .form-field-textarea {
+    font-size: 15px;
+    min-height: 110px;
+  }
+
+  .form-field-input[type="file"] {
+    padding: 12px 0px;
+    font-size: 14px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-actions .btn {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 15px;
+  }
 }
 </style>

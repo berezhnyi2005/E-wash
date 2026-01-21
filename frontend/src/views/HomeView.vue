@@ -40,7 +40,6 @@
   align-items: center;
   padding: 0 40px;
 
-  /* ФОТКА ЗДЕСЬ */
   background-image: url("../assets/fon/fona.jpg");
   background-size: cover;
   background-position: center;
@@ -85,7 +84,6 @@
   flex-wrap: wrap;
 }
 
-/* RESPONSIVE */
 
 @media (max-width: 768px) {
   .home-hero {
