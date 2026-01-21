@@ -1,81 +1,81 @@
-import * as repo from "../repositories/galleryRepository.js"
-import prisma from "../config/prisma.js"
+import * as repo from "../repositories/galleryRepository.js";
+import prisma from "../config/prisma.js";
 
 export const getAllGalleryItems = async () => {
-  return repo.getAll()
-}
+  return repo.getAll();
+};
 
 export const getGalleryItemById = async (id) => {
-  const item = await repo.getById(id)
+  const item = await repo.getById(id);
 
   if (!item) {
     throw {
       type: "VALIDATION_ERROR",
-      errors: ["GALLERY_ITEM_NOT_FOUND"]
-    }
+      errors: ["GALLERY_ITEM_NOT_FOUND"],
+    };
   }
 
-  return item
-}
+  return item;
+};
 
 export const createGalleryItem = async ({
   title,
   beforeUrl,
   afterUrl,
-  serviceId
+  serviceId,
 }) => {
-  const errors = []
+  const errors = [];
 
   if (!title || !beforeUrl || !afterUrl) {
-    errors.push("MISSING_FIELDS")
+    errors.push("MISSING_FIELDS");
   }
 
   if (serviceId) {
     const service = await prisma.service.findUnique({
-      where: { id: Number(serviceId) }
-    })
+      where: { id: Number(serviceId) },
+    });
 
     if (!service) {
-      errors.push("SERVICE_NOT_FOUND")
+      errors.push("SERVICE_NOT_FOUND");
     }
   }
 
   if (errors.length) {
     throw {
       type: "VALIDATION_ERROR",
-      errors
-    }
+      errors,
+    };
   }
 
   return repo.create({
     title,
     beforeUrl,
     afterUrl,
-    serviceId: serviceId ? Number(serviceId) : null
-  })
-}
+    serviceId: serviceId ? Number(serviceId) : null,
+  });
+};
 
 export const updateGalleryItem = async (id, data, files) => {
-  const existing = await repo.getById(id)
+  const existing = await repo.getById(id);
 
   if (!existing) {
     throw {
       type: "VALIDATION_ERROR",
-      errors: ["GALLERY_ITEM_NOT_FOUND"]
-    }
+      errors: ["GALLERY_ITEM_NOT_FOUND"],
+    };
   }
 
-  const updateData = {}
+  const updateData = {};
 
   if (typeof data.title === "string") {
-    const t = data.title.trim()
+    const t = data.title.trim();
     if (!t) {
       throw {
         type: "VALIDATION_ERROR",
-        errors: ["TITLE_REQUIRED"]
-      }
+        errors: ["TITLE_REQUIRED"],
+      };
     }
-    updateData.title = t
+    updateData.title = t;
   }
 
   if ("serviceId" in data) {
@@ -84,51 +84,51 @@ export const updateGalleryItem = async (id, data, files) => {
       data.serviceId === "null" ||
       data.serviceId === null
     ) {
-      updateData.serviceId = null
+      updateData.serviceId = null;
     } else {
-      const sid = Number(data.serviceId)
+      const sid = Number(data.serviceId);
       if (Number.isNaN(sid)) {
         throw {
           type: "VALIDATION_ERROR",
-          errors: ["SERVICE_ID_INVALID"]
-        }
+          errors: ["SERVICE_ID_INVALID"],
+        };
       }
 
       const service = await prisma.service.findUnique({
-        where: { id: sid }
-      })
+        where: { id: sid },
+      });
 
       if (!service) {
         throw {
           type: "VALIDATION_ERROR",
-          errors: ["SERVICE_NOT_FOUND"]
-        }
+          errors: ["SERVICE_NOT_FOUND"],
+        };
       }
 
-      updateData.serviceId = sid
+      updateData.serviceId = sid;
     }
   }
 
   if (files?.before?.[0]) {
-    updateData.beforeUrl = `/uploads/gallery/${files.before[0].filename}`
+    updateData.beforeUrl = `/uploads/gallery/${files.before[0].filename}`;
   }
 
   if (files?.after?.[0]) {
-    updateData.afterUrl = `/uploads/gallery/${files.after[0].filename}`
+    updateData.afterUrl = `/uploads/gallery/${files.after[0].filename}`;
   }
 
-  return repo.update(id, updateData)
-}
+  return repo.update(id, updateData);
+};
 
 export const deleteGalleryItem = async (id) => {
-  const existing = await repo.getById(id)
+  const existing = await repo.getById(id);
 
   if (!existing) {
     throw {
       type: "VALIDATION_ERROR",
-      errors: ["GALLERY_ITEM_NOT_FOUND"]
-    }
+      errors: ["GALLERY_ITEM_NOT_FOUND"],
+    };
   }
 
-  return repo.remove(id)
-}
+  return repo.remove(id);
+};

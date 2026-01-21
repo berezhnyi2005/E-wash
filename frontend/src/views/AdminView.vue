@@ -20,7 +20,6 @@
           Žiadne aktívne rezervácie.
         </p>
 
-        <!-- DESKTOP -->
         <table v-else class="admin-table desktop-only">
           <thead>
             <tr>
@@ -48,12 +47,8 @@
               <td>{{ formatTimeRange(a) }}</td>
 
               <td>
-                <select
-                  class="status-select"
-                  :class="statusClass(a.status)"
-                  :value="a.status"
-                  @change="onStatusChange(a, $event.target.value)"
-                >
+                <select class="status-select" :class="statusClass(a.status)" :value="a.status"
+                  @change="onStatusChange(a, $event.target.value)">
                   <option value="PENDING">Pending</option>
                   <option value="APPROVED">Approved</option>
                   <option value="CANCELLED">Cancelled</option>
@@ -62,11 +57,7 @@
               </td>
 
               <td>
-                <button
-                  class="btn btn-danger"
-                  :disabled="a.status === 'DONE'"
-                  @click="askDelete(a.id)"
-                >
+                <button class="btn btn-danger" :disabled="a.status === 'DONE'" @click="askDelete(a.id)">
                   Zmazať
                 </button>
               </td>
@@ -74,13 +65,8 @@
           </tbody>
         </table>
 
-        <!-- MOBILE -->
         <div class="mobile-only">
-          <div
-            v-for="a in filteredAppointments"
-            :key="a.id"
-            class="reservation-card"
-          >
+          <div v-for="a in filteredAppointments" :key="a.id" class="reservation-card">
             <div class="card-row">
               <strong>{{ a.service.title }}</strong>
               <span>{{ formatDate(a.dateTime) }}</span>
@@ -98,23 +84,15 @@
             </div>
 
             <div class="card-row actions-row">
-              <select
-                class="status-select"
-                :class="statusClass(a.status)"
-                :value="a.status"
-                @change="onStatusChange(a, $event.target.value)"
-              >
+              <select class="status-select" :class="statusClass(a.status)" :value="a.status"
+                @change="onStatusChange(a, $event.target.value)">
                 <option value="PENDING">Pending</option>
                 <option value="APPROVED">Approved</option>
                 <option value="CANCELLED">Cancelled</option>
                 <option value="DONE">Done</option>
               </select>
 
-              <button
-                class="btn btn-danger"
-                :disabled="a.status === 'DONE'"
-                @click="askDelete(a.id)"
-              >
+              <button class="btn btn-danger" :disabled="a.status === 'DONE'" @click="askDelete(a.id)">
                 Zmazať
               </button>
             </div>
@@ -122,15 +100,9 @@
         </div>
       </div>
 
-      <ConfirmModal
-        v-model:visible="confirmDeleteVisible"
-        @confirm="deleteConfirmed"
-      />
+      <ConfirmModal v-model:visible="confirmDeleteVisible" @confirm="deleteConfirmed" />
 
-      <ConfirmModal
-        v-model:visible="confirmDoneVisible"
-        @confirm="confirmSetDone"
-      />
+      <ConfirmModal v-model:visible="confirmDoneVisible" @confirm="confirmSetDone" />
 
     </div>
   </section>
@@ -227,7 +199,7 @@ const formatTimeRange = (a) => {
   const start = new Date(a.dateTime)
   const end = new Date(start.getTime() + a.service.durationMin * 60000)
   const f = (d) =>
-    `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+    `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
   return `${f(start)} – ${f(end)}`
 }
 
@@ -323,11 +295,19 @@ const statusClass = (s) => {
   font-size: 13px;
 }
 
-.desktop-only { display: table; }
-.mobile-only { display: none; }
+.desktop-only {
+  display: table;
+}
+
+.mobile-only {
+  display: none;
+}
 
 @media (max-width: 768px) {
-  .desktop-only { display: none; }
+  .desktop-only {
+    display: none;
+  }
+
   .mobile-only {
     display: flex;
     flex-direction: column;

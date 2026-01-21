@@ -20,55 +20,36 @@
 
       <form @submit.prevent="handleSubmit" class="modal-form">
 
-        <!-- TITLE -->
         <div class="form-field">
           <label class="form-field-label" for="service-title">
             Názov služby
           </label>
-          <input
-            id="service-title"
-            v-model="localForm.title"
-            type="text"
-            class="form-field-input"
-            :class="{ 'has-error': !!errors.title }"
-          />
+          <input id="service-title" v-model="localForm.title" type="text" class="form-field-input"
+            :class="{ 'has-error': !!errors.title }" />
           <p v-if="errors.title" class="form-field-error">
             {{ errors.title }}
           </p>
         </div>
 
-        <!-- DESCRIPTION -->
         <div class="form-field">
           <label class="form-field-label" for="service-description">
             Popis
           </label>
-          <textarea
-            id="service-description"
-            v-model="localForm.description"
-            rows="3"
-            class="form-field-textarea"
+          <textarea id="service-description" v-model="localForm.description" rows="3" class="form-field-textarea"
             :class="{ 'has-error': !!errors.description }"
-            placeholder="Stručný popis toho, čo táto služba zahŕňa."
-          ></textarea>
+            placeholder="Stručný popis toho, čo táto služba zahŕňa."></textarea>
           <p v-if="errors.description" class="form-field-error">
             {{ errors.description }}
           </p>
         </div>
 
-        <!-- PRICE + DURATION -->
         <div class="form-row-two">
           <div class="form-field">
             <label class="form-field-label" for="service-price">
               Cena (€)
             </label>
-            <input
-              id="service-price"
-              v-model.number="localForm.price"
-              type="number"
-              min="0"
-              class="form-field-input"
-              :class="{ 'has-error': !!errors.price }"
-            />
+            <input id="service-price" v-model.number="localForm.price" type="number" min="0" class="form-field-input"
+              :class="{ 'has-error': !!errors.price }" />
             <p v-if="errors.price" class="form-field-error">
               {{ errors.price }}
             </p>
@@ -78,35 +59,20 @@
             <label class="form-field-label" for="service-duration">
               Trvanie (min)
             </label>
-            <input
-              id="service-duration"
-              v-model.number="localForm.durationMin"
-              type="number"
-              min="0"
-              step="5"
-              class="form-field-input"
-              :class="{ 'has-error': !!errors.durationMin }"
-            />
+            <input id="service-duration" v-model.number="localForm.durationMin" type="number" min="0" step="5"
+              class="form-field-input" :class="{ 'has-error': !!errors.durationMin }" />
             <p v-if="errors.durationMin" class="form-field-error">
               {{ errors.durationMin }}
             </p>
           </div>
         </div>
 
-        <!-- ACTIONS -->
         <div class="modal-actions">
-          <button
-            type="button"
-            class="btn btn-ghost"
-            @click="close"
-          >
+          <button type="button" class="btn btn-ghost" @click="close">
             Zrušiť
           </button>
 
-          <button
-            type="submit"
-            class="btn btn-blue"
-          >
+          <button type="submit" class="btn btn-blue">
             {{ isEditMode ? 'Uložiť zmeny' : 'Vytvoriť službu' }}
           </button>
         </div>
@@ -218,14 +184,12 @@ const handleSubmit = () => {
 </script>
 
 <style scoped>
-/* ===== LAYOUT ===== */
 .modal-panel {
   width: 100%;
   max-width: 520px;
   padding: 22px 24px;
 }
 
-/* ===== HEADER ===== */
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -239,13 +203,13 @@ const handleSubmit = () => {
 }
 
 .modal-chip {
-  font-size: 11px;
+  font-size: 12px;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: 99px;
   background: var(--grey-light);
+  align-self: center;
 }
 
-/* ===== FORM ===== */
 .modal-form {
   display: flex;
   flex-direction: column;
@@ -258,13 +222,11 @@ const handleSubmit = () => {
   border-radius: 10px;
 }
 
-/* ===== ROW ===== */
 .form-row-two {
   display: flex;
   gap: 24px;
 }
 
-/* ===== ACTIONS ===== */
 .modal-actions {
   margin-top: 12px;
   display: flex;
@@ -272,7 +234,6 @@ const handleSubmit = () => {
   gap: 10px;
 }
 
-/* ===== MOBILE ===== */
 @media (max-width: 480px) {
   .modal-panel {
     padding: 18px 16px;

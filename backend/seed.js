@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-
+//chat gpt genering
 const prisma = new PrismaClient()
 
 async function main() {

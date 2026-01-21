@@ -7,42 +7,24 @@
 
       <form @submit.prevent="handleSubmit">
         <div class="form-field">
-          <label
-            for="admin-reply"
-            class="form-field-label"
-          >
+          <label for="admin-reply" class="form-field-label">
             Odpoveď na recenziu
           </label>
 
-          <textarea
-            id="admin-reply"
-            v-model="localReply"
-            rows="4"
-            class="form-field-textarea"
-            :class="{ 'has-error': !!errorMessage }"
-          ></textarea>
+          <textarea id="admin-reply" v-model="localReply" rows="4" class="form-field-textarea"
+            :class="{ 'has-error': !!errorMessage }"></textarea>
 
-          <p
-            v-if="errorMessage"
-            class="form-field-error"
-          >
+          <p v-if="errorMessage" class="form-field-error">
             {{ errorMessage }}
           </p>
         </div>
 
         <div class="modal-actions">
-          <button
-            type="button"
-            class="btn btn-ghost"
-            @click="close"
-          >
+          <button type="button" class="btn btn-ghost" @click="close">
             Zrušiť
           </button>
 
-          <button
-            type="submit"
-            class="btn btn-green"
-          >
+          <button type="submit" class="btn btn-green">
             {{ mode === 'edit' ? 'Uložiť odpoveď' : 'Odoslať odpoveď' }}
           </button>
         </div>

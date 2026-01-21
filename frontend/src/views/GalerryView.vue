@@ -10,11 +10,7 @@
           </p>
         </div>
 
-        <button
-          v-if="isAdmin"
-          class="btn btn-primary"
-          @click="openCreate"
-        >
+        <button v-if="isAdmin" class="btn btn-primary" @click="openCreate">
           Pridať prácu
         </button>
       </div>
@@ -23,10 +19,7 @@
         Načítavam galériu...
       </div>
 
-      <div
-        v-else-if="items.length === 0"
-        class="text-center text-sm text-[var(--color-text-muted)]"
-      >
+      <div v-else-if="items.length === 0" class="text-center text-sm text-[var(--color-text-muted)]">
         Zatiaľ nie sú k dispozícii žiadne fotografie.
       </div>
 
@@ -63,21 +56,13 @@
             <button @click="prev" :disabled="activeIndex === 0">‹</button>
 
             <div class="thumbnails">
-              <div
-                v-for="(item, i) in items"
-                :key="item.id"
-                class="thumb"
-                :class="{ active: i === activeIndex }"
-                @click="activeIndex = i"
-              >
+              <div v-for="(item, i) in items" :key="item.id" class="thumb" :class="{ active: i === activeIndex }"
+                @click="activeIndex = i">
                 <img :src="apiUrl + item.afterUrl" />
               </div>
             </div>
 
-            <button
-              @click="next"
-              :disabled="activeIndex === items.length - 1"
-            >
+            <button @click="next" :disabled="activeIndex === items.length - 1">
               ›
             </button>
           </div>
@@ -87,18 +72,10 @@
     </div>
   </section>
 
-  <GalleryWorkModal
-    v-model:visible="modalVisible"
-    :item="modalItem"
-    @saved="fetchGallery"
-  />
+  <GalleryWorkModal v-model:visible="modalVisible" :item="modalItem" @saved="fetchGallery" />
 
-  <ConfirmModal
-    v-model:visible="deleteVisible"
-    title="Odstrániť prácu"
-    text="Naozaj chcete odstrániť túto prácu z galérie?"
-    @confirm="deleteItem"
-  />
+  <ConfirmModal v-model:visible="deleteVisible" title="Odstrániť prácu"
+    text="Naozaj chcete odstrániť túto prácu z galérie?" @confirm="deleteItem" />
 </template>
 
 <script setup>

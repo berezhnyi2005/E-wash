@@ -9,12 +9,7 @@
             Vyberte si balík ručného umývania, ktorý najlepšie vyhovuje vášmu autu
           </p>
         </div>
-        <button
-          v-if="isAdmin"
-          type="button"
-          class="btn btn-green"
-          @click="openCreateModal"
-        >
+        <button v-if="isAdmin" type="button" class="btn btn-green" @click="openCreateModal">
           Vytvoriť službu
         </button>
       </header>
@@ -28,11 +23,7 @@
       </div>
 
       <div v-else class="services-grid">
-        <div
-          v-for="service in services"
-          :key="service.id"
-          class="card-service"
-        >
+        <div v-for="service in services" :key="service.id" class="card-service">
           <header class="card-service-header">
             <h2 class="card-service-title">{{ service.title }}</h2>
 
@@ -50,25 +41,16 @@
           </div>
 
           <div class="card-service-actions">
-            <button
-              class="btn btn-primary"
-              @click="goToReservation(service.id)"
-            >
+            <button class="btn btn-primary" @click="goToReservation(service.id)">
               Rezervovať
             </button>
 
             <div v-if="isAdmin" class="card-service-admin-actions">
-              <button
-                class="btn btn-ghost"
-                @click="openEditModal(service)"
-              >
+              <button class="btn btn-ghost" @click="openEditModal(service)">
                 Upraviť
               </button>
 
-              <button
-                class="btn btn-danger"
-                @click="askDeleteService(service.id)"
-              >
+              <button class="btn btn-danger" @click="askDeleteService(service.id)">
                 Vymazať
               </button>
             </div>
@@ -77,19 +59,10 @@
       </div>
     </div>
 
-    <ServiceModal
-      v-if="isAdmin && modalVisible"
-      v-model:visible="modalVisible"
-      :mode="modalMode"
-      :service="selectedService"
-      @save="handleSaveService"
-    />
+    <ServiceModal v-if="isAdmin && modalVisible" v-model:visible="modalVisible" :mode="modalMode"
+      :service="selectedService" @save="handleSaveService" />
 
-    <ConfirmModal
-      v-if="isAdmin"
-      v-model:visible="confirmDeleteVisible"
-      @confirm="deleteServiceConfirmed"
-    />
+    <ConfirmModal v-if="isAdmin" v-model:visible="confirmDeleteVisible" @confirm="deleteServiceConfirmed" />
   </section>
 </template>
 

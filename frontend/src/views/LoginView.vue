@@ -10,23 +10,12 @@
       <form @submit.prevent="handleLogin">
 
         <label class="label">Email</label>
-        <input
-          v-model="email"
-          type="email"
-          class="input"
-          placeholder="Zadajte email"
-          required
-        />
+        <input v-model="email" type="email" class="input" placeholder="Zadajte email" required />
 
         <label class="label">Heslo</label>
         <div class="password-wrapper">
-          <input
-            v-model="password"
-            :type="showPass ? 'text' : 'password'"
-            class="input"
-            placeholder="Zadajte heslo"
-            required
-          />
+          <input v-model="password" :type="showPass ? 'text' : 'password'" class="input" placeholder="Zadajte heslo"
+            required />
           <span class="eye" @click="showPass = !showPass">
             <i :class="showPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
           </span>
@@ -127,7 +116,7 @@ async function handleLogin() {
 
 .input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 12px 0px;
   border: 1px solid var(--color-border);
   border-radius: 12px;
   font-size: 14px;
@@ -178,7 +167,6 @@ async function handleLogin() {
   text-decoration: underline;
 }
 
-/* ===== MOBILE ===== */
 @media (max-width: 480px) {
   .login-card {
     padding: 28px 20px;

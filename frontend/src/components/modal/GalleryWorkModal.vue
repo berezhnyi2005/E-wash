@@ -8,11 +8,7 @@
       <form @submit.prevent="handleSubmit" class="modal-form">
         <div class="form-field">
           <label class="form-field-label">Názov práce</label>
-          <input
-            v-model="form.title"
-            class="form-field-input"
-            :class="{ 'has-error': errors.title }"
-          />
+          <input v-model="form.title" class="form-field-input" :class="{ 'has-error': errors.title }" />
           <p v-if="errors.title" class="form-field-error">
             {{ errors.title }}
           </p>
@@ -32,12 +28,8 @@
           <label class="form-field-label">
             Fotografia pred {{ isEdit ? "(voliteľné)" : "*" }}
           </label>
-          <input
-            type="file"
-            accept="image/*"
-            @change="e => form.beforeFile = e.target.files[0]"
-            :class="{ 'has-error': errors.before }"
-          />
+          <input type="file" accept="image/*" @change="e => form.beforeFile = e.target.files[0]"
+            :class="{ 'has-error': errors.before }" />
           <p v-if="errors.before" class="form-field-error">
             {{ errors.before }}
           </p>
@@ -47,12 +39,8 @@
           <label class="form-field-label">
             Fotografia po {{ isEdit ? "(voliteľné)" : "*" }}
           </label>
-          <input
-            type="file"
-            accept="image/*"
-            @change="e => form.afterFile = e.target.files[0]"
-            :class="{ 'has-error': errors.after }"
-          />
+          <input type="file" accept="image/*" @change="e => form.afterFile = e.target.files[0]"
+            :class="{ 'has-error': errors.after }" />
           <p v-if="errors.after" class="form-field-error">
             {{ errors.after }}
           </p>

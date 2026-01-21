@@ -4,14 +4,13 @@
 
       <div class="footer-grid">
 
-        <!-- KONTAKT -->
         <div class="footer-column">
           <h3 class="footer-title">Kontakt</h3>
 
           <div class="footer-row">
             <i class="fas fa-map-marker-alt footer-icon"></i>
             <div class="footer-text-block">
-              <span>123 Ulica Umývania</span>
+              <span>Námestie Ľ. Štúra 8155/5, 010 01 Žilina</span>
               <span>010 01 Žilina, Slovensko</span>
             </div>
           </div>
@@ -31,7 +30,6 @@
           </div>
         </div>
 
-        <!-- OTVÁRACIE HODINY -->
         <div class="footer-column">
           <h3 class="footer-title">Otváracie hodiny</h3>
 
@@ -41,7 +39,6 @@
           </div>
         </div>
 
-        <!-- SOCIAL -->
         <div class="footer-column">
           <h3 class="footer-title">Sledujte nás</h3>
 
@@ -50,14 +47,24 @@
           </p>
 
           <div class="footer-social">
-            <a class="social-btn"><i class="fab fa-facebook-f"></i></a>
-            <a class="social-btn"><i class="fab fa-instagram"></i></a>
-            <a class="social-btn"><i class="fab fa-twitter"></i></a>
+            <a class="social-btn" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer"
+              aria-label="Facebook">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+
+            <a class="social-btn" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer"
+              aria-label="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+
+            <a class="social-btn" href="https://twitter.com/" target="_blank" rel="noopener noreferrer"
+              aria-label="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
           </div>
         </div>
       </div>
 
-      <!-- MAPA -->
       <div class="footer-map-section">
         <button class="find-us-btn" @click="toggleMap">
           <span class="find-us-left">
@@ -71,21 +78,14 @@
 
         <transition name="fade-slide">
           <div v-if="showMap" class="map-wrapper">
-            <iframe
-              title="Mapa E-Wash"
-              width="100%"
-              height="260"
-              style="border:0;"
-              loading="lazy"
-              allowfullscreen
+            <iframe title="Mapa E-Wash" width="100%" height="260" style="border:0;" loading="lazy" allowfullscreen
               referrerpolicy="no-referrer-when-downgrade"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2660.157855913262!2d18.739289!3d49.223321!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47145f3acb1e7b0f%3A0xaaa!2s%C5%BDilina!5e0!3m2!1ssk!2ssk!4v1700000000000"
-            ></iframe>
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d230.33488746640458!2d18.74174587258378!3d49.220631328883805!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47145fe9e964cba9%3A0xbf6004641e936aca!2zR2Fyw6HFvmUgQXVwYXJrIC0gdsO9Y2hvZG7DvSB2amF6ZA!5e0!3m2!1suk!2ssk!4v1769023577764!5m2!1suk!2ssk"
+              ;></iframe>
           </div>
         </transition>
       </div>
 
-      <!-- BOTTOM -->
       <div class="footer-bottom">
         © 2026 E-Wash
       </div>
@@ -104,7 +104,6 @@ const toggleMap = () => {
 </script>
 
 <style scoped>
-/* ROOT */
 .footer-root {
   background-color: var(--color-footer-bg, #020617);
   color: #e5e7eb;
@@ -116,7 +115,6 @@ const toggleMap = () => {
   padding-bottom: 40px;
 }
 
-/* GRID */
 .footer-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -125,7 +123,6 @@ const toggleMap = () => {
   margin: 0 auto;
 }
 
-/* COLUMN */
 .footer-column {
   display: flex;
   flex-direction: column;
@@ -150,7 +147,6 @@ const toggleMap = () => {
   font-size: 14px;
 }
 
-/* ROW */
 .footer-row {
   display: flex;
   align-items: flex-start;
@@ -163,7 +159,6 @@ const toggleMap = () => {
   color: var(--color-primary);
 }
 
-/* LINKS */
 .footer-link {
   color: #e5e7eb;
   text-decoration: none;
@@ -174,7 +169,6 @@ const toggleMap = () => {
   color: white;
 }
 
-/* SOCIAL */
 .footer-social {
   display: flex;
   gap: 12px;
@@ -202,7 +196,6 @@ const toggleMap = () => {
   transform: translateY(-2px);
 }
 
-/* MAP */
 .footer-map-section {
   margin-top: 40px;
   display: flex;
@@ -248,18 +241,17 @@ const toggleMap = () => {
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
-/* ANIMATION */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
+
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-6px);
 }
 
-/* BOTTOM */
 .footer-bottom {
   margin-top: 48px;
   padding-top: 16px;
@@ -269,7 +261,6 @@ const toggleMap = () => {
   color: #9ca3af;
 }
 
-/* RESPONSIVE */
 @media (max-width: 640px) {
   .footer-container {
     padding-top: 40px;

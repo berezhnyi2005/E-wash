@@ -50,7 +50,7 @@ const confirm = () => {
   border-radius: 14px;
   padding: 20px 18px;
   border: 1px solid var(--color-border);
-  box-shadow: 0 14px 40px rgba(0,0,0,0.15);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.15);
   text-align: center;
 }
 
@@ -89,6 +89,7 @@ const confirm = () => {
   .actions {
     flex-direction: column;
   }
+
   .actions .btn {
     width: 100%;
   }

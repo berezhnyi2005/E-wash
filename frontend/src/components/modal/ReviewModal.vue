@@ -7,21 +7,14 @@
 
       <form @submit.prevent="handleSubmit" class="modal-form">
 
-        <!-- RATING -->
         <div class="form-field">
           <label class="form-field-label">
             Hodnotenie (1 – 5)
           </label>
 
           <div class="rating-wrapper">
-            <button
-              v-for="star in 5"
-              :key="star"
-              type="button"
-              class="rating-star"
-              :class="{ active: star <= localForm.rating }"
-              @click="setRating(star)"
-            >
+            <button v-for="star in 5" :key="star" type="button" class="rating-star"
+              :class="{ active: star <= localForm.rating }" @click="setRating(star)">
               ★
             </button>
 
@@ -35,53 +28,34 @@
           </p>
         </div>
 
-        <!-- COMMENT -->
         <div class="form-field">
           <label class="form-field-label">
             Vaša skúsenosť
           </label>
 
-          <textarea
-            v-model="localForm.comment"
-            rows="3"
-            class="form-field-textarea"
+          <textarea v-model="localForm.comment" rows="3" class="form-field-textarea"
             :class="{ 'has-error': errors.comment }"
-            placeholder="Opíšte, ako ste boli spokojný s umývaním..."
-          ></textarea>
+            placeholder="Opíšte, ako ste boli spokojný s umývaním..."></textarea>
 
           <p v-if="errors.comment" class="form-field-error">
             {{ errors.comment }}
           </p>
         </div>
 
-        <!-- IMAGE FILE -->
         <div class="form-field">
           <label class="form-field-label">
             Obrázok (voliteľné)
           </label>
 
-          <input
-            type="file"
-            accept="image/*"
-            class="form-field-input"
-            @change="onFileChange"
-          />
+          <input type="file" accept="image/*" class="form-field-input" @change="onFileChange" />
         </div>
 
-        <!-- ACTIONS -->
         <div class="modal-actions">
-          <button
-            type="button"
-            class="btn btn-ghost"
-            @click="close"
-          >
+          <button type="button" class="btn btn-ghost" @click="close">
             Zrušiť
           </button>
 
-          <button
-            type="submit"
-            class="btn btn-green"
-          >
+          <button type="submit" class="btn btn-green">
             Odoslať recenziu
           </button>
         </div>
@@ -252,7 +226,6 @@ const handleSubmit = () => {
   gap: 8px;
 }
 
-/* ===== MOBILE UX FIX ===== */
 @media (max-width: 480px) {
   .modal-panel {
     padding: 20px 20px;

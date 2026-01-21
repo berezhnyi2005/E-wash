@@ -20,12 +20,7 @@
 
         <div class="form-field">
           <label class="form-field-label">Dátum</label>
-          <input
-            type="date"
-            v-model="selectedDate"
-            class="form-field-input"
-            :min="today"
-          />
+          <input type="date" v-model="selectedDate" class="form-field-input" :min="today" />
         </div>
 
         <div class="form-field">
@@ -36,13 +31,8 @@
           </p>
 
           <div v-else class="slots-grid">
-            <button
-              v-for="slot in timeSlots"
-              :key="slot.start"
-              class="slot-btn"
-              :class="{ active: selectedSlotStart === slot.start }"
-              @click="selectedSlotStart = slot.start"
-            >
+            <button v-for="slot in timeSlots" :key="slot.start" class="slot-btn"
+              :class="{ active: selectedSlotStart === slot.start }" @click="selectedSlotStart = slot.start">
               {{ slot.label }}
             </button>
           </div>

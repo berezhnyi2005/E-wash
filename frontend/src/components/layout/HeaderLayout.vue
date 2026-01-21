@@ -6,35 +6,19 @@
         <span>PREMIUM WASH</span>
       </RouterLink>
 
-      <!-- BURGER -->
-      <button
-        class="header-menu-btn"
-        type="button"
-        @click="toggleMobileMenu"
-      >
+      <button class="header-menu-btn" type="button" @click="toggleMobileMenu">
         <span class="header-menu-line"></span>
         <span class="header-menu-line"></span>
         <span class="header-menu-line"></span>
       </button>
 
-      <!-- NAV -->
-      <nav
-        class="header-nav"
-        :class="{ 'mobile-open': isMobileMenuOpen }"
-      >
-        <RouterLink
-          v-for="link in navLinks"
-          :key="link.path"
-          :to="link.path"
-          class="nav-link"
-          :class="{ active: isActive(link.path) }"
-          @click="closeMobileMenu"
-        >
+      <nav class="header-nav" :class="{ 'mobile-open': isMobileMenuOpen }">
+        <RouterLink v-for="link in navLinks" :key="link.path" :to="link.path" class="nav-link"
+          :class="{ active: isActive(link.path) }" @click="closeMobileMenu">
           {{ link.name }}
         </RouterLink>
       </nav>
 
-      <!-- AVATAR -->
       <div class="header-auth">
         <div class="avatar-wrapper">
           <div class="header-avatar" @click="toggleDropdown">
@@ -102,7 +86,6 @@ const logout = () => {
 </script>
 
 <style scoped>
-/* ===== ROOT ===== */
 .header-root {
   position: fixed;
   top: 0;
@@ -125,7 +108,6 @@ const logout = () => {
   gap: 12px;
 }
 
-/* ===== LOGO ===== */
 .header-logo {
   font-size: 17px;
   font-weight: 700;
@@ -136,7 +118,6 @@ const logout = () => {
   text-decoration: none;
 }
 
-/* ===== BURGER ===== */
 .header-menu-btn {
   display: inline-flex;
   flex-direction: column;
@@ -152,7 +133,6 @@ const logout = () => {
   background: var(--color-text-main);
 }
 
-/* ===== NAV ===== */
 .header-nav {
   display: none;
 }
@@ -169,7 +149,6 @@ const logout = () => {
 
 }
 
-/* ===== DESKTOP ===== */
 @media (min-width: 768px) {
   .header-menu-btn {
     display: none;
@@ -181,7 +160,6 @@ const logout = () => {
   }
 }
 
-/* ===== MOBILE MENU ===== */
 @media (max-width: 767px) {
   .header-nav.mobile-open {
     position: absolute;
@@ -198,7 +176,6 @@ const logout = () => {
   }
 }
 
-/* ===== AVATAR ===== */
 .avatar-wrapper {
   position: relative;
 }
@@ -225,7 +202,7 @@ const logout = () => {
   right: 0;
   background: white;
   border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
   overflow: hidden;
   min-width: 160px;
 }

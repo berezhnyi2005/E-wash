@@ -14,12 +14,7 @@
           <div class="reviews-summary-main">
             <span class="reviews-summary-score">{{ averageRating.toFixed(1) }}</span>
             <div class="reviews-summary-stars">
-              <span
-                v-for="star in 5"
-                :key="star"
-                class="star"
-                :class="{ active: star <= Math.round(averageRating) }"
-              >
+              <span v-for="star in 5" :key="star" class="star" :class="{ active: star <= Math.round(averageRating) }">
                 ★
               </span>
             </div>
@@ -61,12 +56,7 @@
           </div>
 
           <div class="review-rating">
-            <span
-              v-for="star in 5"
-              :key="star"
-              class="star"
-              :class="{ active: star <= (review.rating || 0) }"
-            >
+            <span v-for="star in 5" :key="star" class="star" :class="{ active: star <= (review.rating || 0) }">
               ★
             </span>
           </div>
@@ -78,13 +68,8 @@
 
         <div v-if="review.imgReview" class="review-image-wrapper">
           <div class="review-image-box">
-            <img
-              :src="resolveImgSrc(review.imgReview)"
-              alt="Foto recenzie"
-              class="review-image"
-              loading="lazy"
-              @error="onImgError"
-            />
+            <img :src="resolveImgSrc(review.imgReview)" alt="Foto recenzie" class="review-image" loading="lazy"
+              @error="onImgError" />
           </div>
         </div>
 
@@ -94,29 +79,16 @@
         </div>
 
         <div v-if="isAdmin" class="review-admin-actions">
-          <button
-            v-if="!review.adminReview"
-            type="button"
-            class="btn btn-ghost"
-            @click="openReplyModal(review, 'create')"
-          >
+          <button v-if="!review.adminReview" type="button" class="btn btn-ghost"
+            @click="openReplyModal(review, 'create')">
             Odpovedať
           </button>
 
-          <button
-            v-else
-            type="button"
-            class="btn btn-ghost"
-            @click="openReplyModal(review, 'edit')"
-          >
+          <button v-else type="button" class="btn btn-ghost" @click="openReplyModal(review, 'edit')">
             Upraviť odpoveď
           </button>
 
-          <button
-            type="button"
-            class="btn btn-danger"
-            @click="askDeleteReview(review.id)"
-          >
+          <button type="button" class="btn btn-danger" @click="askDeleteReview(review.id)">
             Vymazať recenziu
           </button>
         </div>
@@ -124,27 +96,13 @@
     </div>
   </div>
 
-  <ReviewModal
-    v-if="reviewModalVisible"
-    v-model:visible="reviewModalVisible"
-    :mode="reviewModalMode"
-    :review="selectedReview"
-    @save="saveReview"
-  />
+  <ReviewModal v-if="reviewModalVisible" v-model:visible="reviewModalVisible" :mode="reviewModalMode"
+    :review="selectedReview" @save="saveReview" />
 
-  <ReviewReplyModal
-    v-if="isAdmin && replyModalVisible"
-    v-model:visible="replyModalVisible"
-    :mode="replyModalMode"
-    :review="selectedReview"
-    @save="saveReply"
-  />
+  <ReviewReplyModal v-if="isAdmin && replyModalVisible" v-model:visible="replyModalVisible" :mode="replyModalMode"
+    :review="selectedReview" @save="saveReply" />
 
-  <ConfirmModal
-    v-if="isAdmin"
-    v-model:visible="confirmDeleteVisible"
-    @confirm="deleteReviewConfirmed"
-  />
+  <ConfirmModal v-if="isAdmin" v-model:visible="confirmDeleteVisible" @confirm="deleteReviewConfirmed" />
 </template>
 
 <script setup>
