@@ -29,6 +29,10 @@
               {{ localForm.rating }} / 5
             </span>
           </div>
+
+          <p v-if="errors.rating" class="form-field-error">
+            {{ errors.rating }}
+          </p>
         </div>
 
         <!-- COMMENT -->
@@ -41,7 +45,7 @@
             v-model="localForm.comment"
             rows="4"
             class="form-field-textarea"
-            :class="{ 'has-error': !!errors.comment }"
+            :class="{ 'has-error': errors.comment }"
             placeholder="Opíšte, ako ste boli spokojný s umývaním..."
           ></textarea>
 
@@ -95,10 +99,6 @@ const toast = useToast()
 
 const props = defineProps({
   visible: Boolean,
-  mode: {
-    type: String,
-    default: 'create'
-  },
   review: {
     type: Object,
     default: null
@@ -114,6 +114,7 @@ const localForm = reactive({
 })
 
 const errors = reactive({
+  rating: '',
   comment: ''
 })
 
@@ -125,6 +126,8 @@ watch(
     localForm.rating = props.review?.rating ?? 5
     localForm.comment = props.review?.comment ?? ''
     localForm.imageFile = null
+
+    errors.rating = ''
     errors.comment = ''
   },
   { immediate: true }
@@ -135,9 +138,7 @@ const close = () => {
 }
 
 const setRating = (value) => {
-  if (value < 1) value = 1
-  if (value > 5) value = 5
-  localForm.rating = value
+  localForm.rating = Math.min(5, Math.max(1, value))
 }
 
 const onFileChange = (e) => {
@@ -145,12 +146,20 @@ const onFileChange = (e) => {
 }
 
 const validate = () => {
+  errors.rating = ''
   errors.comment = ''
+
+  if (!Number.isFinite(localForm.rating) || localForm.rating < 1 || localForm.rating > 5) {
+    errors.rating = 'Hodnotenie musí byť medzi 1 a 5.'
+  }
 
   const text = localForm.comment.trim()
   if (!text || text.length < 5) {
     errors.comment = 'Komentár musí mať aspoň 5 znakov.'
-    toast.error('Skontrolujte si formulár recenzie.', {
+  }
+
+  if (errors.rating || errors.comment) {
+    toast.error('Skontrolujte formulár recenzie.', {
       position: 'bottom-center'
     })
     return false
@@ -176,7 +185,6 @@ const handleSubmit = () => {
 </script>
 
 <style scoped>
-/* ❗ СТИЛИ НЕ ТРОНУТЫ */
 .modal-form {
   display: flex;
   flex-direction: column;
@@ -203,7 +211,6 @@ const handleSubmit = () => {
   border: 1px solid var(--color-border);
   font-size: 14px;
   outline: none;
-  transition: 0.15s ease;
 }
 
 .form-field-textarea.has-error {

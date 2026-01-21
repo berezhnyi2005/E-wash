@@ -61,7 +61,7 @@
               v-model.number="localForm.price"
               type="number"
               min="0"
-              step="0.5"
+              step=""
               class="form-field-input"
               :class="{ 'has-error': !!errors.price }"
             />
@@ -211,16 +211,16 @@ const validate = () => {
   if (localForm.price == null || isNaN(localForm.price)) {
     errors.price = 'Cena musí byť číslo.'
     isValid = false
-  } else if (localForm.price <= 1) {
-    errors.price = 'Cena musí byť väčšia ako 1 €.'
+  } else if (localForm.price <= 0) {
+    errors.price = 'Cena musí byť väčšia ako 0.'
     isValid = false
   }
 
   if (localForm.durationMin == null || isNaN(localForm.durationMin)) {
     errors.durationMin = 'Trvanie musí byť číslo.'
     isValid = false
-  } else if (localForm.durationMin <= 1) {
-    errors.durationMin = 'Trvanie musí byť väčšie ako 1 minúta.'
+  } else if (localForm.durationMin <= 0) {
+    errors.durationMin = 'Trvanie musí byť väčšie ako 0.'
     isValid = false
   }
 
@@ -232,6 +232,7 @@ const validate = () => {
 
   return isValid
 }
+
 
 const handleSubmit = () => {
   if (!validate()) return

@@ -30,16 +30,32 @@
 
         <div class="form-field">
           <label class="form-field-label">
-            Fotografia pred {{ isEdit ? "(voliteľné)" : "" }}
+            Fotografia pred {{ isEdit ? "(voliteľné)" : "*" }}
           </label>
-          <input type="file" accept="image/*" @change="e => form.beforeFile = e.target.files[0]" />
+          <input
+            type="file"
+            accept="image/*"
+            @change="e => form.beforeFile = e.target.files[0]"
+            :class="{ 'has-error': errors.before }"
+          />
+          <p v-if="errors.before" class="form-field-error">
+            {{ errors.before }}
+          </p>
         </div>
 
         <div class="form-field">
           <label class="form-field-label">
-            Fotografia po {{ isEdit ? "(voliteľné)" : "" }}
+            Fotografia po {{ isEdit ? "(voliteľné)" : "*" }}
           </label>
-          <input type="file" accept="image/*" @change="e => form.afterFile = e.target.files[0]" />
+          <input
+            type="file"
+            accept="image/*"
+            @change="e => form.afterFile = e.target.files[0]"
+            :class="{ 'has-error': errors.after }"
+          />
+          <p v-if="errors.after" class="form-field-error">
+            {{ errors.after }}
+          </p>
         </div>
 
         <div class="modal-actions">
@@ -80,7 +96,9 @@ const form = reactive({
 })
 
 const errors = reactive({
-  title: ""
+  title: "",
+  before: "",
+  after: ""
 })
 
 watch(
@@ -92,21 +110,49 @@ watch(
       form.beforeFile = null
       form.afterFile = null
       errors.title = ""
+      errors.before = ""
+      errors.after = ""
     }
   }
 )
 
 const close = () => emit("update:visible", false)
 
-const handleSubmit = async () => {
+const validate = () => {
+  errors.title = ""
+  errors.before = ""
+  errors.after = ""
+
+  let ok = true
+
   if (!form.title.trim()) {
     errors.title = "Názov je povinný."
+    ok = false
+  }
+
+  if (!isEdit.value) {
+    if (!form.beforeFile) {
+      errors.before = "Fotografia pred je povinná."
+      ok = false
+    }
+    if (!form.afterFile) {
+      errors.after = "Fotografia po je povinná."
+      ok = false
+    }
+  }
+
+  return ok
+}
+
+const handleSubmit = async () => {
+  if (!validate()) {
     toast.error("Skontrolujte formulár.")
     return
   }
 
   const fd = new FormData()
   fd.append("title", form.title.trim())
+
   if (form.serviceId) fd.append("serviceId", form.serviceId)
   if (form.beforeFile) fd.append("before", form.beforeFile)
   if (form.afterFile) fd.append("after", form.afterFile)
@@ -140,5 +186,9 @@ onMounted(async () => {
 .form-field-error {
   font-size: 12px;
   color: var(--red);
+}
+
+.has-error {
+  border-color: var(--red);
 }
 </style>

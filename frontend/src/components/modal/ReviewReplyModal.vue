@@ -74,14 +74,15 @@ const errorMessage = ref('')
 watch(
   () => props.visible,
   (value) => {
-    if (value) {
-      if (props.review && props.mode === 'edit') {
-        localReply.value = props.review.adminReview ?? ''
-      } else {
-        localReply.value = ''
-      }
-      errorMessage.value = ''
+    if (!value) return
+
+    if (props.review && props.mode === 'edit') {
+      localReply.value = props.review.adminReview ?? ''
+    } else {
+      localReply.value = ''
     }
+
+    errorMessage.value = ''
   },
   { immediate: true }
 )
@@ -90,33 +91,39 @@ const close = () => {
   emit('update:visible', false)
 }
 
-const handleSubmit = () => {
-  if (!props.review || !props.review.id) return
+const validate = () => {
+  errorMessage.value = ''
 
   const trimmed = localReply.value.trim()
 
   if (!trimmed) {
     errorMessage.value = 'Odpoveď nemôže byť prázdna.'
-    
-    toast.error('Odpoveď nemôže byť prázdna.', {
-      position: "bottom-center"
-    })
-
-    return
+  } else if (trimmed.length < 3) {
+    errorMessage.value = 'Odpoveď musí mať aspoň 3 znaky.'
   }
 
-  errorMessage.value = ''
+  if (errorMessage.value) {
+    toast.error(errorMessage.value, {
+      position: 'bottom-center'
+    })
+    return false
+  }
+
+  return true
+}
+
+const handleSubmit = () => {
+  if (!props.review?.id) return
+  if (!validate()) return
 
   emit('save', {
     id: props.review.id,
-    adminReview: trimmed,
-    mode: props.mode
+    adminReview: localReply.value.trim()
   })
 
   emit('update:visible', false)
 }
 </script>
-
 
 <style scoped>
 .form-field {
@@ -148,5 +155,12 @@ const handleSubmit = () => {
 .form-field-error {
   font-size: 12px;
   color: var(--red);
+}
+
+.modal-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 </style>
