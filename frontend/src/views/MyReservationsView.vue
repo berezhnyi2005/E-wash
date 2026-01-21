@@ -21,7 +21,6 @@
           Nemáte žiadne rezervácie.
         </div>
 
-        <!-- DESKTOP / TABLET -->
         <div v-else class="table-wrapper">
           <table class="reservations-table">
             <thead>
@@ -38,10 +37,7 @@
                 <td>{{ formatDate(r.dateTime) }}</td>
                 <td>{{ formatTimeBlock(r.dateTime, r.service.durationMin) }}</td>
                 <td>
-                  <span
-                    class="status"
-                    :class="`status-${r.status.toLowerCase()}`"
-                  >
+                  <span class="status" :class="`status-${r.status.toLowerCase()}`">
                     {{ r.status }}
                   </span>
                 </td>
@@ -50,13 +46,8 @@
           </table>
         </div>
 
-        <!-- MOBILE -->
         <div class="reservations-mobile" v-if="!loading && reservations.length">
-          <div
-            v-for="r in reservations"
-            :key="r.id + '-mobile'"
-            class="reservation-card"
-          >
+          <div v-for="r in reservations" :key="r.id + '-mobile'" class="reservation-card">
             <div class="reservation-row">
               <span class="label">Služba</span>
               <span class="value">{{ r.service.title }}</span>
@@ -76,10 +67,7 @@
 
             <div class="reservation-row">
               <span class="label">Stav</span>
-              <span
-                class="status"
-                :class="`status-${r.status.toLowerCase()}`"
-              >
+              <span class="status" :class="`status-${r.status.toLowerCase()}`">
                 {{ r.status }}
               </span>
             </div>
@@ -157,7 +145,6 @@ const formatTimeBlock = (iso, duration) => {
   color: var(--color-text-muted);
 }
 
-/* ===== TABLE ===== */
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -184,7 +171,6 @@ const formatTimeBlock = (iso, duration) => {
   color: var(--color-text-main);
 }
 
-/* ===== STATUS ===== */
 .status {
   padding: 4px 10px;
   border-radius: 999px;

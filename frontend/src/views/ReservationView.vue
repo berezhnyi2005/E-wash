@@ -10,17 +10,29 @@
 
         <div class="form-field">
           <label class="form-field-label">Služba</label>
-          <select v-model="selectedServiceId" class="form-field-input">
+          <select
+            v-model="selectedServiceId"
+            class="form-field-input"
+            :class="{ 'has-error': !!errors.service }"
+          >
             <option disabled :value="null">Vyberte službu</option>
             <option v-for="s in services" :key="s.id" :value="s.id">
               {{ s.title }} ({{ s.durationMin }} min)
             </option>
           </select>
+          <p v-if="errors.service" class="form-field-error">{{ errors.service }}</p>
         </div>
 
         <div class="form-field">
           <label class="form-field-label">Dátum</label>
-          <input type="date" v-model="selectedDate" class="form-field-input" :min="today" />
+          <input
+            type="date"
+            v-model="selectedDate"
+            class="form-field-input"
+            :min="today"
+            :class="{ 'has-error': !!errors.date }"
+          />
+          <p v-if="errors.date" class="form-field-error">{{ errors.date }}</p>
         </div>
 
         <div class="form-field">
@@ -31,11 +43,22 @@
           </p>
 
           <div v-else class="slots-grid">
-            <button v-for="slot in timeSlots" :key="slot.start" class="slot-btn"
-              :class="{ active: selectedSlotStart === slot.start }" @click="selectedSlotStart = slot.start">
+            <button
+              v-for="slot in timeSlots"
+              :key="slot.start"
+              type="button"
+              class="slot-btn"
+              :class="{
+                active: selectedSlotStart === slot.start,
+                'has-error': !!errors.slot
+              }"
+              @click="onPickSlot(slot.start)"
+            >
               {{ slot.label }}
             </button>
           </div>
+
+          <p v-if="errors.slot" class="form-field-error">{{ errors.slot }}</p>
         </div>
 
         <div class="form-field">
@@ -45,7 +68,13 @@
 
         <div class="reservation-actions">
           <button class="btn btn-ghost" @click="$router.back()">Späť</button>
-          <button class="btn btn-primary" :disabled="!canSubmit" @click="submit">
+
+          <button
+            class="btn btn-primary"
+            :class="{ 'btn-disabled': !canSubmit }"
+            :aria-disabled="!canSubmit"
+            @click="onTrySubmit"
+          >
             Potvrdiť rezerváciu
           </button>
         </div>
@@ -56,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue"
+import { ref, computed, watch, onMounted, reactive } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { useToast } from "vue-toastification"
 
@@ -71,6 +100,12 @@ const selectedServiceId = ref(null)
 const selectedDate = ref("")
 const selectedSlotStart = ref(null)
 const notes = ref("")
+
+const errors = reactive({
+  service: "",
+  date: "",
+  slot: ""
+})
 
 const WORK_START = 9 * 60
 const WORK_END = 17 * 60
@@ -87,15 +122,24 @@ onMounted(async () => {
   if (pre) selectedServiceId.value = pre
 })
 
+watch(selectedServiceId, () => {
+  errors.service = ""
+  errors.slot = ""
+  selectedSlotStart.value = null
+})
+
 watch(selectedDate, async () => {
   if (!selectedDate.value) return
+
+  errors.date = ""
+  errors.slot = ""
+  selectedSlotStart.value = null
 
   const res = await fetch(
     `http://localhost:5000/api/appointments/busy?date=${selectedDate.value}`
   )
   const json = await res.json()
   busySlots.value = json.data || []
-  selectedSlotStart.value = null
 })
 
 const selectedService = computed(() =>
@@ -162,6 +206,42 @@ const format = (m) =>
   ":" +
   String(m % 60).padStart(2, "0")
 
+const onPickSlot = (start) => {
+  selectedSlotStart.value = start
+  errors.slot = ""
+}
+
+const validate = () => {
+  errors.service = ""
+  errors.date = ""
+  errors.slot = ""
+
+  let ok = true
+
+  if (!selectedService.value) {
+    errors.service = "Vyberte službu."
+    ok = false
+  }
+
+  if (!selectedDate.value) {
+    errors.date = "Vyberte dátum."
+    ok = false
+  }
+
+  if (selectedSlotStart.value === null) {
+    errors.slot = "Vyberte čas."
+    ok = false
+  }
+
+  if (!ok) toast.error("Vyplňte všetky povinné polia.")
+  return ok
+}
+
+const onTrySubmit = async () => {
+  if (!validate()) return
+  await submit()
+}
+
 const submit = async () => {
   const user = JSON.parse(localStorage.getItem("user"))
   if (!user?.id) {
@@ -192,9 +272,7 @@ const submit = async () => {
     }
 
     if (json?.errors?.length) {
-      json.errors.forEach(e =>
-        toast.error(map[e] || "Chyba pri rezervácii")
-      )
+      json.errors.forEach(e => toast.error(map[e] || "Chyba pri rezervácii"))
     } else {
       toast.error("Chyba pri rezervácii")
     }
@@ -286,6 +364,20 @@ const submit = async () => {
 .no-slots-text {
   font-size: 14px;
   color: var(--red);
+}
+
+.form-field-error {
+  font-size: 12px;
+  color: var(--red);
+}
+
+.has-error {
+  border-color: var(--red) !important;
+}
+
+.btn-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media (max-width: 640px) {

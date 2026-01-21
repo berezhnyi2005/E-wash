@@ -14,17 +14,11 @@
       </p>
 
       <div class="hero-actions">
-        <RouterLink
-          to="/reserve?"
-          class="btn btn-green"
-        >
+        <RouterLink to="/reserve?" class="btn btn-green">
           Rezervovať termín
         </RouterLink>
 
-        <RouterLink
-          to="/services"
-          class="btn btn-primary"
-        >
+        <RouterLink to="/services" class="btn btn-primary">
           Naše služby
         </RouterLink>
       </div>
@@ -49,12 +43,10 @@
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.75) 0%,
-    rgba(0, 0, 0, 0.55) 40%,
-    rgba(0, 0, 0, 0.15) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.55) 40%,
+      rgba(0, 0, 0, 0.15) 100%);
 }
 
 .hero-content {

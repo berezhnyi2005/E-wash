@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-backdrop" @click.self="close">
+  <div v-if="visible" class="modal-backdrop" @click.self="close">
     <div class="modal-panel">
       <div class="modal-header">
         <div>
@@ -36,8 +36,7 @@
             Popis
           </label>
           <textarea id="service-description" v-model="localForm.description" rows="3" class="form-field-textarea"
-            :class="{ 'has-error': !!errors.description }"
-            placeholder="Stručný popis toho, čo táto služba zahŕňa."></textarea>
+            :class="{ 'has-error': !!errors.description }" placeholder="Stručný popis toho, čo táto služba zahŕňa." />
           <p v-if="errors.description" class="form-field-error">
             {{ errors.description }}
           </p>
@@ -83,35 +82,35 @@
 </template>
 
 <script setup>
-import { computed, reactive, watch } from 'vue'
-import { useToast } from 'vue-toastification'
+import { computed, reactive, watch } from "vue"
+import { useToast } from "vue-toastification"
 
 const toast = useToast()
 
 const props = defineProps({
   visible: Boolean,
-  mode: { type: String, default: 'create' },
+  mode: { type: String, default: "create" },
   service: { type: Object, default: null }
 })
 
-const emit = defineEmits(['update:visible', 'save'])
+const emit = defineEmits(["update:visible", "save"])
+
+const isEditMode = computed(() => props.mode === "edit")
 
 const localForm = reactive({
   id: null,
-  title: '',
-  description: '',
+  title: "",
+  description: "",
   price: 0,
   durationMin: 30
 })
 
 const errors = reactive({
-  title: '',
-  description: '',
-  price: '',
-  durationMin: ''
+  title: "",
+  description: "",
+  price: "",
+  durationMin: ""
 })
-
-const isEditMode = computed(() => props.mode === 'edit')
 
 watch(
   () => props.visible,
@@ -122,45 +121,45 @@ watch(
       Object.assign(localForm, props.service)
     } else {
       localForm.id = null
-      localForm.title = ''
-      localForm.description = ''
+      localForm.title = ""
+      localForm.description = ""
       localForm.price = 0
       localForm.durationMin = 30
     }
 
-    Object.keys(errors).forEach(k => errors[k] = '')
+    Object.keys(errors).forEach(k => errors[k] = "")
   },
   { immediate: true }
 )
 
-const close = () => emit('update:visible', false)
+const close = () => emit("update:visible", false)
 
 const validate = () => {
   let ok = true
-  Object.keys(errors).forEach(k => errors[k] = '')
+  Object.keys(errors).forEach(k => errors[k] = "")
 
   if (!localForm.title.trim()) {
-    errors.title = 'Názov je povinný.'
+    errors.title = "Názov je povinný."
     ok = false
   }
 
   if (!localForm.description.trim()) {
-    errors.description = 'Popis je povinný.'
+    errors.description = "Popis je povinný."
     ok = false
   }
 
   if (localForm.price <= 0) {
-    errors.price = 'Cena musí byť väčšia ako 0.'
+    errors.price = "Cena musí byť väčšia ako 0."
     ok = false
   }
 
   if (localForm.durationMin <= 0) {
-    errors.durationMin = 'Trvanie musí byť väčšie ako 0.'
+    errors.durationMin = "Trvanie musí byť väčšie ako 0."
     ok = false
   }
 
   if (!ok) {
-    toast.error('Skontrolujte formulár.', { position: 'bottom-center' })
+    toast.error("Skontrolujte formulár.", { position: "bottom-center" })
   }
 
   return ok
@@ -169,14 +168,14 @@ const validate = () => {
 const handleSubmit = () => {
   if (!validate()) return
 
-  emit('save', {
+  emit("save", {
     ...localForm,
-    mode: isEditMode.value ? 'edit' : 'create'
+    mode: isEditMode.value ? "edit" : "create"
   })
 
   toast.success(
-    isEditMode.value ? 'Služba upravená.' : 'Služba vytvorená.',
-    { position: 'bottom-center' }
+    isEditMode.value ? "Služba upravená." : "Služba vytvorená.",
+    { position: "bottom-center" }
   )
 
   close()
@@ -232,6 +231,16 @@ const handleSubmit = () => {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.form-field-error {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 4px;
+}
+
+.has-error {
+  border-color: var(--red) !important;
 }
 
 @media (max-width: 480px) {
