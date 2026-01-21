@@ -2,6 +2,7 @@
   <section class="page-section">
     <div class="page-container">
 
+      <!-- HEADER -->
       <div class="section-header">
         <div>
           <h1 class="section-header-title">Administrácia rezervácií</h1>
@@ -15,11 +16,13 @@
         </button>
       </div>
 
+      <!-- CONTENT -->
       <div class="admin-card">
         <p v-if="!filteredAppointments.length" class="empty-text">
           Žiadne aktívne rezervácie.
         </p>
 
+        <!-- DESKTOP TABLE -->
         <table v-else class="admin-table desktop-only">
           <thead>
             <tr>
@@ -46,9 +49,15 @@
               <td>{{ formatDate(a.dateTime) }}</td>
               <td>{{ formatTimeRange(a) }}</td>
 
+              <!-- STATUS -->
               <td>
-                <select class="status-select" :class="statusClass(a.status)" :value="a.status"
-                  @change="onStatusChange(a, $event.target.value)">
+                <select
+                  class="status-select"
+                  :class="statusClass(a.status)"
+                  :value="a.status"
+                  :disabled="a.status === 'DONE'"
+                  @change="onStatusChange(a, $event.target.value)"
+                >
                   <option value="PENDING">Pending</option>
                   <option value="APPROVED">Approved</option>
                   <option value="CANCELLED">Cancelled</option>
@@ -56,8 +65,13 @@
                 </select>
               </td>
 
+              <!-- ACTIONS -->
               <td>
-                <button class="btn btn-danger" :disabled="a.status === 'DONE'" @click="askDelete(a.id)">
+                <button
+                  v-if="a.status !== 'DONE'"
+                  class="btn btn-danger"
+                  @click="askDelete(a.id)"
+                >
                   Zmazať
                 </button>
               </td>
@@ -65,8 +79,13 @@
           </tbody>
         </table>
 
+        <!-- MOBILE -->
         <div class="mobile-only">
-          <div v-for="a in filteredAppointments" :key="a.id" class="reservation-card">
+          <div
+            v-for="a in filteredAppointments"
+            :key="a.id"
+            class="reservation-card"
+          >
             <div class="card-row">
               <strong>{{ a.service.title }}</strong>
               <span>{{ formatDate(a.dateTime) }}</span>
@@ -84,15 +103,24 @@
             </div>
 
             <div class="card-row actions-row">
-              <select class="status-select" :class="statusClass(a.status)" :value="a.status"
-                @change="onStatusChange(a, $event.target.value)">
+              <select
+                class="status-select"
+                :class="statusClass(a.status)"
+                :value="a.status"
+                :disabled="a.status === 'DONE'"
+                @change="onStatusChange(a, $event.target.value)"
+              >
                 <option value="PENDING">Pending</option>
                 <option value="APPROVED">Approved</option>
                 <option value="CANCELLED">Cancelled</option>
                 <option value="DONE">Done</option>
               </select>
 
-              <button class="btn btn-danger" :disabled="a.status === 'DONE'" @click="askDelete(a.id)">
+              <button
+                v-if="a.status !== 'DONE'"
+                class="btn btn-danger"
+                @click="askDelete(a.id)"
+              >
                 Zmazať
               </button>
             </div>
@@ -100,9 +128,16 @@
         </div>
       </div>
 
-      <ConfirmModal v-model:visible="confirmDeleteVisible" @confirm="deleteConfirmed" />
+      <!-- MODALS -->
+      <ConfirmModal
+        v-model:visible="confirmDeleteVisible"
+        @confirm="deleteConfirmed"
+      />
 
-      <ConfirmModal v-model:visible="confirmDoneVisible" @confirm="confirmSetDone" />
+      <ConfirmModal
+        v-model:visible="confirmDoneVisible"
+        @confirm="confirmSetDone"
+      />
 
     </div>
   </section>
@@ -132,13 +167,17 @@ const fetchAppointments = async () => {
 
 onMounted(fetchAppointments)
 
+/* FILTER */
 const filteredAppointments = computed(() =>
   appointments.value.filter(a =>
     showDone.value ? true : a.status !== 'DONE'
   )
 )
 
+/* STATUS */
 const onStatusChange = (a, newStatus) => {
+  if (a.status === 'DONE') return
+
   if (newStatus === 'DONE') {
     appointmentToDone.value = a
     confirmDoneVisible.value = true
@@ -152,6 +191,7 @@ const confirmSetDone = async () => {
   appointmentToDone.value = null
 }
 
+/* API */
 const updateStatus = async (id, status) => {
   const res = await fetch(
     `http://localhost:5000/api/appointments/${id}/status`,
@@ -192,6 +232,7 @@ const deleteConfirmed = async () => {
   fetchAppointments()
 }
 
+/* HELPERS */
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('sk-SK')
 
@@ -199,7 +240,7 @@ const formatTimeRange = (a) => {
   const start = new Date(a.dateTime)
   const end = new Date(start.getTime() + a.service.durationMin * 60000)
   const f = (d) =>
-    `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+    `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
   return `${f(start)} – ${f(end)}`
 }
 
@@ -223,7 +264,6 @@ const statusClass = (s) => {
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
 }
 
 .admin-table th,
@@ -242,6 +282,7 @@ const statusClass = (s) => {
   color: var(--color-text-muted);
 }
 
+/* STATUS */
 .status-select {
   border-radius: 999px;
   padding: 6px 12px;
@@ -251,30 +292,32 @@ const statusClass = (s) => {
   background: transparent;
 }
 
+.status-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .status-pending {
   color: var(--blue);
   background: rgba(37, 99, 235, 0.12);
-  border-color: rgba(37, 99, 235, 0.35);
 }
 
 .status-approved {
   color: var(--green);
   background: rgba(33, 166, 82, 0.12);
-  border-color: rgba(33, 166, 82, 0.35);
 }
 
 .status-cancelled {
   color: var(--red);
   background: rgba(196, 16, 16, 0.12);
-  border-color: rgba(196, 16, 16, 0.35);
 }
 
 .status-done {
   color: #5f6f63;
   background: rgba(95, 111, 99, 0.18);
-  border-color: rgba(95, 111, 99, 0.45);
 }
 
+/* MOBILE */
 .reservation-card {
   padding: 16px;
   border-radius: 14px;
@@ -287,7 +330,6 @@ const statusClass = (s) => {
 .card-row {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
 }
 
 .muted {
@@ -295,19 +337,11 @@ const statusClass = (s) => {
   font-size: 13px;
 }
 
-.desktop-only {
-  display: table;
-}
-
-.mobile-only {
-  display: none;
-}
+.desktop-only { display: table; }
+.mobile-only { display: none; }
 
 @media (max-width: 768px) {
-  .desktop-only {
-    display: none;
-  }
-
+  .desktop-only { display: none; }
   .mobile-only {
     display: flex;
     flex-direction: column;

@@ -1,44 +1,69 @@
-# e-wash-frontend
+ Návod na spustenie aplikácie
 
-This template should help get you started developing with Vue 3 in Vite.
+1 Požiadavky
 
-## Recommended IDE Setup
+Pred spustením aplikácie musí byť nainštalované:
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Node.js (verzia 18 alebo novšia)
 
-## Recommended Browser Setup
+npm
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+PostgreSQL
 
-## Customize configuration
+Visual Studio Code (odporúčané)
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+Overenie:
 
-## Project Setup
+node -v
+npm -v
 
-```sh
+2 Stiahnutie projektu
+
+Projekt sa otvorí vo Visual Studio Code.
+
+3 Inštalácia závislostí
+
+Pred prvým spustením je nutné nainštalovať závislosti zvlášť pre backend aj frontend.
+
+Backend
+cd backend
 npm install
-```
 
-### Compile and Hot-Reload for Development
+Frontend
+cd frontend
+npm install
 
-```sh
+4 Spustenie backendu
+
+V priečinku backend:
+
 npm run dev
-```
 
-### Compile and Minify for Production
 
-```sh
-npm run build
-```
+Backend server sa spustí na adrese:
 
-### Lint with [ESLint](https://eslint.org/)
+http://localhost:5000
 
-```sh
-npm run lint
-```
+5 Spustenie frontendu
+
+V novom termináli vo frontend priečinku:
+
+npm run dev
+
+
+Frontend aplikácia bude dostupná na:
+
+http://localhost:5173
+
+6 Používanie aplikácie
+
+Aplikácia sa používa v prehliadači
+
+Používateľ sa musí zaregistrovať alebo prihlásiť
+
+Neprihlásený používateľ nemá prístup k chráneným častiam aplikácie
+
+ Poznámka
+
+Backend aj frontend bežia samostatne a musia byť spustené súčasne
+(v dvoch termináloch).
