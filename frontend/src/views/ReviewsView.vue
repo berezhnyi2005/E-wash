@@ -287,7 +287,7 @@ onMounted(getReviews)
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
-  padding: 10px 14px;
+  padding: 10px 0px;
   border-radius: 12px;
   background: var(--white-aktive);
   border: 1px solid var(--color-border);
